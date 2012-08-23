@@ -19,4 +19,10 @@ mixin field(form, name)
         span.help-inline= error
 
 mixin widget(form, name)
-  != form.boundField(name).asWidget({attrs: attributes})
+  field = form.boundField(name)
+  errors = field.errors().errors
+  if (errors.length)
+    - attributes['class'] += ' error'
+    - attributes['rel'] = 'popover'
+    - attributes['data-content'] = errors.join('; ')
+  != field.asWidget({attrs: attributes})

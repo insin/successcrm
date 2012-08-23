@@ -1,3 +1,5 @@
+/* Fieldset-style outline and header. */
+
 .module {
   border: 1px solid #ddd;
   margin-bottom: 1.5em;
@@ -18,12 +20,16 @@
   margin-top: 0;
 }
 
+/* Light tables for sidebars */
+
 .table-borderless {
   margin-bottom: 0;
 }
 .table-borderless td {
   border-top: none;
 }
+
+/* Contact history */
 
 .history-item {
   padding-left: 2em;
@@ -42,6 +48,8 @@
   left: 0;
 }
 
+/* Calendar */
+
 .table-calendar td {
   height: 100px;
   width: 14.28%;
@@ -57,6 +65,33 @@
   color: #999;
 }
 
+/* Contact listings */
+
 a.contact {
   font-weight: bold;
+}
+
+/* Allow error styling by applying .error to the field itself. */
+
+.checkbox.error,
+.radio.error,
+input.error,
+select.error,
+textarea.error {
+  color: #b94a48;
+  border-color: #b94a48;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.checkbox.error:focus,
+.radio.error:focus,
+input.error:focus,
+select.error:focus,
+textarea.error:focus {
+  border-color: #953b39;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #d59392;
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #d59392;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #d59392;
 }

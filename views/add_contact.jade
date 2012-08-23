@@ -53,3 +53,10 @@ block content
       | 
       a.btn(href='/contacts') Cancel
 
+append scripts
+  script
+    $('*[rel=popover]').popover({
+      trigger: 'focus'
+    , placement: 'bottom'
+    , title: 'Validation error'
+    })
