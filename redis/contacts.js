@@ -229,7 +229,7 @@ Contact.prototype.isOrganisation = function() {
 Contact.prototype.shortAddress = function() {
   if (!this.addresses.length) return ''
   var a = this.addresses[0]
-  return [a.address, a.city, a.county, a.postal].filter(truthy).join(', ')
+  return [a.address, a.city, a.county, a.postCode].filter(truthy).join(', ')
 }
 
 Contact.prototype.primaryEmail = function() {

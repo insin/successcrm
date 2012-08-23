@@ -56,3 +56,7 @@
 .table-calendar div.different-month {
   color: #999;
 }
+
+a.contact {
+  font-weight: bold;
+}
