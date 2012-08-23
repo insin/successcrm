@@ -1,0 +1,55 @@
+extends layout
+
+block content
+  include mixins/forms
+
+  block contact_type
+    type = ''
+
+  form(action='/contacts/add_#{type}', method='POST')
+    +csrf
+    block management_forms
+      != phoneNumberFormSet.managementForm().asP()
+      != emailAddressFormSet.managementForm().asP()
+      != addressFormSet.managementForm().asP()
+
+    block contact_fields
+
+    .module
+      h2.module-legend Contact Details
+
+      label: strong Phone Numbers
+      for form in phoneNumberFormSet.forms
+        .row
+          .span5: +widget(form, 'number')(class='span5')
+          .span2: +widget(form, 'type')(class='span2')
+      p
+        a(href='#') <i class="icon-plus"></i> add another phone number
+
+      label: strong Email Addresses
+      for form in emailAddressFormSet.forms
+        .row
+          .span5: +widget(form, 'email')(class='span5')
+          .span2: +widget(form, 'type')(class='span2')
+      p
+        a(href='#') <i class="icon-plus"></i> add another email address
+
+      label: strong Addresses
+      for form in addressFormSet.forms
+        .controls.controls-row
+          +widget(form, 'address')(class='span5')
+          +widget(form, 'type')(class='span2')
+        .controls.controls-row
+          +widget(form, 'city')(class='span3')
+          +widget(form, 'county')(class='span2')
+          +widget(form, 'postCode')(class='span2')
+        .controls
+          +widget(form, 'country')(class='span5')
+      p
+        a(href='#') <i class="icon-plus"></i> add another address
+
+    .form-actions
+      button.btn.btn-primary(type='submit') Save
+      | 
+      a.btn(href='/contacts') Cancel
+

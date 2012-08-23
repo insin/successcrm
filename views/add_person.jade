@@ -1,0 +1,20 @@
+extends add_contact
+
+block contact_type
+  type = 'person'
+
+block contact_fields
+  .module
+    h2.module-legend Peronal Details
+    .row
+      .span2
+        +field(personForm, 'title')(class='span2')
+      .span3
+        +field(personForm, 'firstName')(class='span3')
+      .span3
+        +field(personForm, 'lastName')(class='span3')
+    .row
+      .span4
+        +field(personForm, 'jobTitle')(class='span4')
+      .span4
+        +field(personForm, 'organisation')(class='span4')

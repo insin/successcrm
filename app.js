@@ -149,6 +149,55 @@ app.get('/contact/:id', function(req, res, next) {
   })
 })
 
+app.get('/contacts/add_person', function(req, res, next) {
+  var personForm = new forms.PersonForm({prefix: 'person'})
+    , phoneNumberFormSet = new forms.PhoneNumberFormSet({prefix: 'phone'})
+    , emailAddressFormSet = new forms.EmailAddressFormSet({prefix: 'email'})
+    , addressFormSet = new forms.AddressFormSet({prefix: 'address'})
+
+  res.render('add_person', {
+    personForm: personForm
+  , addressFormSet: addressFormSet
+  , phoneNumberFormSet: phoneNumberFormSet
+  , emailAddressFormSet: emailAddressFormSet
+  })
+})
+
+app.post('/contacts/add_person', function(req, res, next) {
+  var personForm = new forms.PersonForm({prefix: 'person', data: req.body})
+    , phoneNumberFormSet = new forms.PhoneNumberFormSet({prefix: 'phone', data: req.body})
+    , emailAddressFormSet = new forms.EmailAddressFormSet({prefix: 'email', data: req.body})
+    , addressFormSet = new forms.AddressFormSet({prefix: 'address', data: req.body})
+
+  // Redisplay if any of the forms are invalid
+  if (!allValid([personForm, addressFormSet,
+                 phoneNumberFormSet, emailAddressFormSet])) {
+    return res.render('add_person', {
+      personForm: personForm
+    , addressFormSet: addressFormSet
+    , phoneNumberFormSet: phoneNumberFormSet
+    , emailAddressFormSet: emailAddressFormSet
+    })
+  }
+
+  var person = {
+    title: personForm.cleanedData.title
+  , firstName: personForm.cleanedData.firstName
+  , lastName: personForm.cleanedData.lastName
+  , jobTitle: personForm.cleanedData.jobTitle
+  , backgroundInfo: ''
+  , organisation: personForm.cleanedData.organisation
+  , emailAddresses: emailAddressFormSet.cleanedData()
+  , phoneNumbers: phoneNumberFormSet.cleanedData()
+  , addresses: addressFormSet.cleanedData()
+  }
+
+  redis.contacts.storePerson(person, function(err, id) {
+    if (err) return next(err)
+    res.redirect('/contacts/' + id)
+  })
+})
+
 app.get('/contacts/add_organisation', function(req, res, next) {
   var organisationForm = new forms.OrganisationForm({prefix: 'org'})
     , peopleFormSet = new forms.InlinePersonFormSet({prefix: 'people'})

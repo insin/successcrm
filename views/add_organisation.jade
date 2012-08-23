@@ -1,76 +1,35 @@
-extends layout
+extends add_contact
 
-block content
-  include mixins/forms
-  form(action='/contacts/add_organisation', method='POST')
-    +csrf
-    != peopleFormSet.managementForm().asP()
-    != phoneNumberFormSet.managementForm().asP()
-    != emailAddressFormSet.managementForm().asP()
-    != addressFormSet.managementForm().asP()
+block contact_type
+  type = 'organisation'
 
-    .module
-      h2.module-legend Organisation
-      +field(organisationForm, 'name')
+append management_forms
+  != peopleFormSet.managementForm().asP()
 
-    .module
-      h2.module-legend People
-      table.table.table-condensed
-        thead
+block contact_fields
+  .module
+    h2.module-legend Organisation
+    +field(organisationForm, 'name')
+
+  .module
+    h2.module-legend People
+    table.table.table-condensed
+      thead
+        tr
+          th First Name
+          th Last Name
+          th Job Title
+          th Email
+          th Mobile Phone
+          th Direct Phone
+      tbody
+        for form in peopleFormSet.forms
           tr
-            th First Name
-            th Last Name
-            th Job Title
-            th Email
-            th Mobile Phone
-            th Direct Phone
-        tbody
-          for form in peopleFormSet.forms
-            tr
-              td: +widget(form, 'firstName')(class='input-small')
-              td: +widget(form, 'lastName')(class='input-small')
-              td: +widget(form, 'jobTitle')(class='input-small')
-              td: +widget(form, 'email')(class='input-small')
-              td: +widget(form, 'mobilePhone')(class='input-small')
-              td: +widget(form, 'directPhone')(class='input-small')
-      p
-        a(href='#') <i class="icon-plus"></i> add another person
-
-    .module
-      h2.module-legend Contact Details
-
-      label: strong Phone Numbers
-      for form in phoneNumberFormSet.forms
-        .row
-          .span5: +widget(form, 'number')(class='span5')
-          .span2: +widget(form, 'type')(class='span2')
-      p
-        a(href='#') <i class="icon-plus"></i> add another phone number
-
-      label: strong Email Addresses
-      for form in emailAddressFormSet.forms
-        .row
-          .span5: +widget(form, 'email')(class='span5')
-          .span2: +widget(form, 'type')(class='span2')
-      p
-        a(href='#') <i class="icon-plus"></i> add another email address
-
-      label: strong Addresses
-      for form in addressFormSet.forms
-        .controls.controls-row
-          +widget(form, 'address')(class='span5')
-          +widget(form, 'type')(class='span2')
-        .controls.controls-row
-          +widget(form, 'city')(class='span3')
-          +widget(form, 'county')(class='span2')
-          +widget(form, 'postCode')(class='span2')
-        .controls
-          +widget(form, 'country')(class='span5')
-      p
-        a(href='#') <i class="icon-plus"></i> add another address
-
-    .form-actions
-      button.btn.btn-primary(type='submit') Save
-      | 
-      a.btn(href='/contacts') Cancel
-
+            td: +widget(form, 'firstName')(class='input-small')
+            td: +widget(form, 'lastName')(class='input-small')
+            td: +widget(form, 'jobTitle')(class='input-small')
+            td: +widget(form, 'email')(class='input-small')
+            td: +widget(form, 'mobilePhone')(class='input-small')
+            td: +widget(form, 'directPhone')(class='input-small')
+    p
+      a(href='#') <i class="icon-plus"></i> add another person

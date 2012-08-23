@@ -14,7 +14,7 @@ mixin field(form, name)
   .control-group(class=errorClass)
     != field.labelTag()
     .controls
-      != field
+      != field.asWidget({attrs: attributes})
       for error in errors
         span.help-inline= error
 
