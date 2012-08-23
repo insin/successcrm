@@ -1,7 +1,10 @@
 var object = require('isomorph/object')
 
+var EMPTY_CHOICE = exports.EMPTY_CHOICE = ['', '']
+
 exports.TITLE_CHOICES = [
-  ['Mr', 'Mr']
+  EMPTY_CHOICE
+, ['Mr', 'Mr']
 , ['Master', 'Master']
 , ['Mrs', 'Mrs']
 , ['Miss', 'Miss']
@@ -11,7 +14,8 @@ exports.TITLE_CHOICES = [
 ]
 
 exports.PHONE_NUMBER_TYPE_CHOICES = [
-  ['Home', 'Home']
+  EMPTY_CHOICE
+, ['Home', 'Home']
 , ['Work', 'Work']
 , ['Mobile', 'Mobile']
 , ['Fax', 'Fax']
@@ -19,18 +23,21 @@ exports.PHONE_NUMBER_TYPE_CHOICES = [
 ]
 
 exports.EMAIL_TYPE_CHOICES = [
-  ['Home', 'Home']
+  EMPTY_CHOICE
+, ['Home', 'Home']
 , ['Work', 'Work']
 ]
 
 exports.ADDRESS_TYPE_CHOICES = [
-  ['Home', 'Home']
+  EMPTY_CHOICE
+, ['Home', 'Home']
 , ['Postal', 'Postal']
 , ['Office', 'Office']
 ]
 
 exports.COUNTRY_CHOICES = [
-  ['AF', 'Afghanistan']
+  EMPTY_CHOICE
+, ['AF', 'Afghanistan']
 , ['AX', 'Åland Islands ']
 , ['AL', 'Albania']
 , ['DZ', 'Algeria']
