@@ -1,0 +1,37 @@
+mixin contactRow(contact)
+  if (contact.isOrganisation())
+    +organisationRow(contact)
+  else if (contact.isPerson())
+    +personRow(contact)
+
+mixin organisationRow(org)
+  tr
+    td: i.icon-briefcase
+    td
+      a(href='/contact/' + org.id)= org.name
+      if (org.addresses.length)
+        br
+        = org.shortAddress()
+    td &nbsp;
+
+mixin personRow(person)
+  tr
+    td: i.icon-user
+    td
+      a(href='/contact/' + person.id)= person.fullName()
+      br
+      if (person.jobTitle)
+        = person.jobTitle
+      if (person.organisation)
+        |  at 
+        a(href='/contact/' + person.organisation.id)= person.organisation.name
+    td
+      if (person.emailAddresses.length)
+        email = person.primaryEmail()
+        a(href='mailto:' + email.email)
+        br
+      if (person.phoneNumbers.length)
+        phone = person.primaryPhone()
+        = phone.number
+        | 
+        span.label.label-inverse= phone.type

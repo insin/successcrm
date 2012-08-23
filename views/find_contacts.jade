@@ -1,0 +1,18 @@
+extends contacts
+
+block contact_head
+  .pull-right
+    a.btn(href='/contacts/add_person') <i class="icon-plus"></i> Add Person
+    | 
+    a.btn(href='/contacts/add_organisation') <i class="icon-plus"></i> Add Organisation
+
+block contact_content
+  include mixins/contacts
+  p Find a person or organisation by typing their name
+  input.span8(type='text', id='search', name='search')
+  table.table
+    col(width='1%')
+    col(width='49%')
+    tbody
+      for contact in contacts
+        +contactRow(contact)

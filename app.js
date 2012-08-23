@@ -2,6 +2,7 @@ var http = require('http')
   , path = require('path')
 
 var express = require('express')
+  , async = require('async')
   , allValid = require('newforms').allValid
   , extend = require('isomorph/object').extend
 
@@ -72,6 +73,25 @@ app.configure('development', function() {
   app.use(express.errorHandler())
 })
 
+// RegExp validation of params - from http://expressjs.com/api.html#app.param
+app.param(function(name, fn) {
+  if (fn instanceof RegExp) {
+    return function(req, res, next, val) {
+      var captures
+      if (captures = fn.exec(String(val))) {
+        req.params[name] = captures
+        next()
+      }
+      else {
+        next('route')
+      }
+    }
+  }
+})
+
+// Validate that :id parameters are numeric
+app.param('id', /^\d+$/)
+
 // ================================================================== Routes ===
 
 app.get('/login', function(req, res, next) {
@@ -114,6 +134,21 @@ app.get('/', function(req, res, next) {
   res.render('dashboard')
 })
 
+app.get('/contacts', function(req, res, next) {
+  redis.contacts.get({fetchRelated: redis.contacts.RELATED_PARTIAL}, function(err, contacts) {
+    if (err) return next(err)
+    res.render('find_contacts', {contacts: contacts})
+  })
+})
+
+app.get('/contact/:id', function(req, res, next) {
+  redis.contacts.byId(req.params.id, {related: redis.contacts.RELATED_PARTIAL}, function(err, contact) {
+    if (err) return next(err)
+    if (!contact) return res.send(404)
+    res.render(contact.type, {contact: contact})
+  })
+})
+
 app.get('/contacts/add_organisation', function(req, res, next) {
   var organisationForm = new forms.OrganisationForm({prefix: 'org'})
     , peopleFormSet = new forms.InlinePersonFormSet({prefix: 'people'})
@@ -137,14 +172,14 @@ app.get('/contacts/add_organisation', function(req, res, next) {
  * @param cleanedData cleaned data from an InlinePersonForm
  * @param cb callback to indicate completion and error/success status.
  */
-function addPersonInline(organisation, cleanedData, cb) {
+function addPersonInline(organisationId, cleanedData, cb) {
   var person = {
     title: ''
   , firstName: cleanedData.firstName
   , lastName: cleanedData.lastName
   , jobTitle: cleanedData.jobTitle
   , backgroundInfo: ''
-  , organisation: organisation
+  , organisation: organisationId
   , emailAddresses: []
   , phoneNumbers: []
   , addresses: []
@@ -183,18 +218,18 @@ app.post('/contacts/add_organisation', function(req, res, next) {
   var organisation = {
     name: organisationForm.cleanedData.name
   , backgroundInfo: ''
-  , phoneNumbers: peopleFormSet.cleanedData()
+  , phoneNumbers: phoneNumberFormSet.cleanedData()
   , emailAddresses: emailAddressFormSet.cleanedData()
   , addresses: addressFormSet.cleanedData()
   }
 
-  redis.contacts.storeOrganisation(organisation, function(err, organisation) {
+  redis.contacts.storeOrganisation(organisation, function(err, id) {
     if (err) return next(err)
-    var redirect = function() { res.redirect('/contacts/' + organisation.id) }
+    var redirect = function() { res.redirect('/contacts/' + id) }
     var peopleData = peopleFormSet.cleanedData()
     if (!peopleData.length) return redirect()
-    var addPerson = addPersonInline.bind(null, organisation)
-    async.forEach(peopleData, addPerson, function(err) {
+    var addPerson = addPersonInline.bind(null, id)
+    async.forEachSeries(peopleData, addPerson, function(err) {
       if (err) return next(err)
       redirect()
     })

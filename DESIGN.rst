@@ -21,10 +21,10 @@ username.to.id:#<username>
 
 **hashes**
 
-users:#<id>
+user:#<id>
    user details
 
-**sets**
+**lists**
 
 users
    user ids
@@ -64,13 +64,22 @@ contacts:nextid
 
 **hashes**
 
-contacts:#<id>
+contact:#<id>
    contact details
 
 **sets**
 
 org.to.people:#<contactid>
    ids of people associated with a given organisation
+
+**lists**
+
+contacts
+  contact ids
+contacts:people
+  people ids
+contacts:orgs
+  organisation ids
 
 Categories
 ==========
