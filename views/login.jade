@@ -13,10 +13,9 @@ html(lang='en')
       .hero-unit
         include mixins/forms
         form(action='/login', method='POST')
+          +csrf
           +formErrors(form)
-          div
-            +csrf
-            != form.boundField('next')
+          div!= form.boundField('next')
           +field(form, 'username')
           +field(form, 'password')
           .form-actions

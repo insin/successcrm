@@ -3,8 +3,7 @@ extends layout
 block content
   include mixins/forms
   form(action='/contacts/add_organisation', method='POST')
-    div
-      +csrf
+    +csrf
     != peopleFormSet.managementForm().asP()
     != phoneNumberFormSet.managementForm().asP()
     != emailAddressFormSet.managementForm().asP()

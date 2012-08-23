@@ -1,5 +1,6 @@
 mixin csrf
-  input(type='hidden', name='_csrf', value=csrfToken)
+  div
+    input(type='hidden', name='_csrf', value=csrfToken)
 
 mixin formErrors(form)
   errors = form.nonFieldErrors().errors

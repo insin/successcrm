@@ -5,9 +5,8 @@ block content
     h2.module-legend New User Details
     include mixins/forms
     form(action='/admin/add_user', method='POST')
+      +csrf
       +formErrors(form)
-      div
-        +csrf
       .row
         .span3
           +field(form, 'firstName')
