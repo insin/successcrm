@@ -1,0 +1,28 @@
+doctype 5
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title= APP_NAME
+    link(href='/css/bootstrap.css', rel='stylesheet')
+    link(href='/css/style.css', rel='stylesheet')
+  body
+    .navbar.navbar-inverse
+      .navbar-inner
+        .container
+          a.brand(href='/')= APP_NAME
+          ul.nav.pull-left
+            li
+              a(href='/'): <i class="icon-home icon-white"></i> Home
+            li
+              a(href='/find_contacts'): <i class="icon-home icon-white"></i> People &amp; Organisations
+            li
+              a(href='/calendar'): <i class="icon-calendar icon-white"></i> Calendar &amp; Tasks
+          if (user.isAdmin)
+            ul.nav.pull-right
+              li
+                a(href='/admin'): <i class="icon-cog icon-white"></i> Admin
+    .container-fluid
+      block content
+      hr
+      footer
+        p #{APP_NAME} v#{APP_VERSION}

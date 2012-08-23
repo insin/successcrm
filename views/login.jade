@@ -1,0 +1,26 @@
+doctype 5
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title= APP_NAME
+    link(href='/css/bootstrap.css', rel='stylesheet')
+  body
+    .navbar.navbar-inverse
+      .navbar-inner
+        .container
+          a.brand(href='/')= APP_NAME
+    .container
+      .hero-unit
+        include mixins/forms
+        form(action='/login', method='POST')
+          +formErrors(form)
+          div
+            +csrf
+            != form.boundField('next')
+          +field(form, 'username')
+          +field(form, 'password')
+          .form-actions
+            button.btn(type='submit') Submit
+    hr
+      footer
+        p #{APP_NAME} v#{APP_VERSION}

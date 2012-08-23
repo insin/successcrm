@@ -1,0 +1,24 @@
+{
+  "name": "successcrm"
+, "version": "0.0.0"
+, "description": "CRM for The Success Foundation NI charity."
+, "bin": {
+    "successcrm": "successcrm.js"
+  }
+, "dependencies": {
+    "async": "~0.1.22"
+  , "express": "~3.0.0rc3"
+  , "newforms": "~0.4.2"
+  , "isomorph": "~0.2.0"
+  , "commander": "~1.0.1"
+  , "moment": "~1.7.0"
+  , "connect-redis": "~1.4.1"
+  , "redis": "~0.7.2"
+  , "jade": "~0.27.2"
+  }
+, "keywords": [
+    "crm"
+  ]
+, "author": "Jonathan Buchanan <jonathan.buchanan@gmail.com>"
+, "license": "MIT"
+}

@@ -1,0 +1,18 @@
+mixin csrf
+  input(type='hidden', name='_csrf', value=csrfToken)
+
+mixin formErrors(form)
+  errors = form.nonFieldErrors().errors
+  for error in errors
+    .alert.alert-error= error
+
+mixin field(form, name)
+  field = form.boundField(name)
+  errors = field.errors().errors
+  errorClass = errors.length ? 'error' : ''
+  .control-group(class=errorClass)
+    != field.labelTag()
+    .controls
+      != field
+      for error in errors
+        span.help-inline= error
