@@ -75,14 +75,14 @@ exports.InlinePersonFormSet = forms.formsetFactory(exports.InlinePersonForm)
 
 exports.PhoneNumberForm = forms.Form.extend({
   number : forms.CharField({maxLength: 30})
-, type   : forms.ChoiceField({choices: choices.PHONE_NUMBER_TYPE_CHOICES})
+, type   : forms.ChoiceField({required: false, choices: choices.PHONE_NUMBER_TYPE_CHOICES})
 })
 
 exports.PhoneNumberFormSet = forms.formsetFactory(exports.PhoneNumberForm)
 
 exports.EmailAddressForm = forms.Form.extend({
   email : forms.EmailField()
-, type  : forms.ChoiceField({choices: choices.EMAIL_TYPE_CHOICES})
+, type  : forms.ChoiceField({required: false, choices: choices.EMAIL_TYPE_CHOICES})
 })
 
 exports.EmailAddressFormSet = forms.formsetFactory(exports.EmailAddressForm)

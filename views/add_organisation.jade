@@ -25,11 +25,11 @@ block contact_fields
       tbody
         for form in peopleFormSet.forms
           tr
-            td: +widget(form, 'firstName')(class='input-small')
-            td: +widget(form, 'lastName')(class='input-small')
-            td: +widget(form, 'jobTitle')(class='input-small')
-            td: +widget(form, 'email')(class='input-small')
-            td: +widget(form, 'mobilePhone')(class='input-small')
-            td: +widget(form, 'directPhone')(class='input-small')
+            td: +widget(form, 'firstName')(class='input-medium')
+            td: +widget(form, 'lastName')(class='input-medium')
+            td: +widget(form, 'jobTitle')(class='input-medium')
+            td: +widget(form, 'email')(class='input-medium')
+            td: +widget(form, 'mobilePhone')(class='input-medium')
+            td: +widget(form, 'directPhone')(class='input-medium')
     p
       a(href='#') <i class="icon-plus"></i> add another person
