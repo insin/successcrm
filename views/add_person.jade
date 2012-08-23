@@ -5,7 +5,8 @@ block contact_type
 
 block contact_fields
   .module
-    h2.module-legend Peronal Details
+    h2.module-legend Personal Details
+    +formErrors(personForm)
     .row
       .span2
         +field(personForm, 'title')(class='span2')
