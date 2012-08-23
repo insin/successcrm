@@ -172,8 +172,11 @@ app.post('/contacts/add_organisation', function(req, res, next) {
     , emailAddressFormSet = new forms.EmailAddressFormSet({prefix: 'email', data: req.body})
     , addressFormSet = new forms.AddressFormSet({prefix: 'address', data: req.body})
 
-  if (allValid(organisationForm, peopleFormSet,
-               addressFormSet, phoneNumberFormSet, emailAddressFormSet)) {
+  if (allValid([ organisationForm
+               , peopleFormSet
+               , addressFormSet
+               , phoneNumberFormSet
+               , emailAddressFormSet ])) {
     var organisation = {
       name: organisationForm.cleanedData.name
     , backgroundInfo: ''
