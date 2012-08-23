@@ -88,11 +88,11 @@ exports.EmailAddressForm = forms.Form.extend({
 exports.EmailAddressFormSet = forms.formsetFactory(exports.EmailAddressForm)
 
 exports.AddressForm = forms.Form.extend({
-  address  : forms.CharField({required: false, widget: forms.Textarea, attrs: {placeholder: 'Address'}})
+  address  : forms.CharField({required: false, widget: forms.Textarea({attrs: {rows: 3, placeholder: 'Address'}})})
 , type     : forms.ChoiceField({required: false, choices: choices.ADDRESS_TYPE_CHOICES})
-, city     : forms.CharField({required: false, maxLength: 100, attrs: {placeholder: 'City/Town'}})
-, county   : forms.CharField({required: false, maxLength: 100, attrs: {placeholder: 'County'}})
-, postCode : forms.CharField({required: false, maxLength: 8, attrs: {placeholder: 'Postcode'}})
+, city     : forms.CharField({required: false, maxLength: 100, widget: forms.TextInput({attrs: {placeholder: 'City/Town'}})})
+, county   : forms.CharField({required: false, maxLength: 100, widget: forms.TextInput({attrs: {placeholder: 'County'}})})
+, postCode : forms.CharField({required: false, maxLength: 8, widget: forms.TextInput({attrs: {placeholder: 'Postcode'}})})
 , country  : forms.ChoiceField({required: false, choices: choices.COUNTRY_CHOICES})
 })
 

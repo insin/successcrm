@@ -16,3 +16,6 @@ mixin field(form, name)
       != field
       for error in errors
         span.help-inline= error
+
+mixin widget(form, name)
+  != form.boundField(name).asWidget({attrs: attributes})

@@ -244,6 +244,7 @@ app.post('/admin/add_user', function(req, res, next) {
       redis.users.store(form.cleanedData, function(err, user, password) {
         if (err) return next(err)
         // TODO Email user details
+        console.log("Psst! %s's password is %s!", user.username, password)
         res.redirect('/admin/users')
       })
     })
