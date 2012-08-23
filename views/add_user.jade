@@ -1,4 +1,22 @@
 extends layout
 
 block content
-  h1 Add User
+  .module
+    h2.module-legend New User Details
+    include mixins/forms
+    form(action='/admin/add_user', method='POST')
+      +formErrors(form)
+      div
+        +csrf
+      .row
+        .span3
+          +field(form, 'firstName')
+        .span3
+          +field(form, 'lastName')
+      +field(form, 'email')
+      +field(form, 'username')
+      +field(form, 'isAdmin')
+      .form-actions
+        button.btn.btn-primary(type='submit') Add User
+        | 
+        a.btn(href='/admin/users') Cancel

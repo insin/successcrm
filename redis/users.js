@@ -7,6 +7,7 @@ module.exports = {
 , byId: byId
 , byUsername: byUsername
 , store: store
+, get: get
 }
 
 var USER = 'user:#'
@@ -49,6 +50,18 @@ function store(user, cb) {
         if (err) return cb(err)
         cb(null, user, password)
       })
+    })
+  })
+}
+
+function get(cb) {
+  $r.lrange(USERS, 0, -1, function(err, ids) {
+    if (err) return cb(err)
+    var multi = $r.multi()
+    ids.forEach(function(id) { multi.hgetall(USER + id) })
+    multi.exec(function(err, users) {
+      if (err) return cb(err)
+      cb(null, users)
     })
   })
 }

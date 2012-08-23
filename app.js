@@ -220,7 +220,10 @@ app.get('/admin', function(req, res, next) {
 })
 
 app.get('/admin/users', function(req, res, next) {
-  res.render('users')
+  redis.users.get(function(err, users) {
+    if (err) return next(err)
+    res.render('users', {users: users})
+  })
 })
 
 app.get('/admin/add_user', function(req, res, next) {

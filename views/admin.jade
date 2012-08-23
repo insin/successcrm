@@ -1,4 +1,9 @@
 extends layout
 
 block content
-  h1 Admin
+  ul.nav.nav-tabs
+   li
+      a(href='/admin') Overview
+    li
+      a(href='/admin/users') Users
+  block admin_content

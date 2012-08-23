@@ -1,0 +1,23 @@
+extends admin
+
+block admin_content
+  .module
+    h2.module-legend Users
+    table.table
+      thead
+        tr
+          th User
+          th Username
+          th Administrator
+          th email
+      tbody
+        for user in users
+          tr
+            td
+              a(href='/users/#{user.id}') #{user.firstName} #{user.lastName}
+            td= user.username
+            td
+              input(disabled, type='checkbox', checked=user.isAdmin)
+            td= user.email
+  p
+    a(href='/admin/add_user'): <i class="icon-plus"></i> Add New User
