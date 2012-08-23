@@ -83,22 +83,18 @@ app.get('/login', function(req, res, next) {
 app.post('/login', function(req, res, next) {
   var form = new forms.LoginForm({data: req.body})
   var redisplay = function() { res.render('login', {form: form}) }
-  if (form.isValid()) {
-    var username = form.cleanedData.username
-      , password = form.cleanedData.password
-    redis.users.validateCredentials(username, password, function(err, user) {
-      if (err) return next(err)
-      if (user === false) {
-        form.addFormError('Invalid login credentials.')
-        return redisplay()
-      }
-      req.session.userId = user.id
-      res.redirect(form.cleanedData.next)
-    })
-  }
-  else {
-    redisplay()
-  }
+  if (!form.isValid()) return redisplay()
+  var username = form.cleanedData.username
+    , password = form.cleanedData.password
+  redis.users.validateCredentials(username, password, function(err, user) {
+    if (err) return next(err)
+    if (user === false) {
+      form.addFormError('Invalid login credentials.')
+      return redisplay()
+    }
+    req.session.userId = user.id
+    res.redirect(form.cleanedData.next)
+  })
 })
 
 /**
@@ -172,33 +168,10 @@ app.post('/contacts/add_organisation', function(req, res, next) {
     , emailAddressFormSet = new forms.EmailAddressFormSet({prefix: 'email', data: req.body})
     , addressFormSet = new forms.AddressFormSet({prefix: 'address', data: req.body})
 
-  if (allValid([ organisationForm
-               , peopleFormSet
-               , addressFormSet
-               , phoneNumberFormSet
-               , emailAddressFormSet ])) {
-    var organisation = {
-      name: organisationForm.cleanedData.name
-    , backgroundInfo: ''
-    , phoneNumbers: peopleFormSet.cleanedData()
-    , emailAddresses: emailAddressFormSet.cleanedData()
-    , addresses: addressFormSet.cleanedData()
-    }
-
-    redis.contacts.storeOrganisation(organisation, function(err, organisation) {
-      if (err) return next(err)
-      var redirect = function() { res.redirect('/contacts/' + organisation.id) }
-      var peopleData = peopleFormSet.cleanedData()
-      if (!peopleData.length) return redirect()
-      var addPerson = addPersonInline.bind(null, organisation)
-      async.forEach(peopleData, addPerson, function(err) {
-        if (err) return next(err)
-        redirect()
-      })
-    })
-  }
-  else {
-    res.render('add_organisation', {
+  // Redisplay if any of the forms are invalid
+  if (!allValid([organisationForm, peopleFormSet, addressFormSet,
+                 phoneNumberFormSet, emailAddressFormSet])) {
+    return res.render('add_organisation', {
       organisationForm: organisationForm
     , peopleFormSet: peopleFormSet
     , addressFormSet: addressFormSet
@@ -206,6 +179,26 @@ app.post('/contacts/add_organisation', function(req, res, next) {
     , emailAddressFormSet: emailAddressFormSet
     })
   }
+
+  var organisation = {
+    name: organisationForm.cleanedData.name
+  , backgroundInfo: ''
+  , phoneNumbers: peopleFormSet.cleanedData()
+  , emailAddresses: emailAddressFormSet.cleanedData()
+  , addresses: addressFormSet.cleanedData()
+  }
+
+  redis.contacts.storeOrganisation(organisation, function(err, organisation) {
+    if (err) return next(err)
+    var redirect = function() { res.redirect('/contacts/' + organisation.id) }
+    var peopleData = peopleFormSet.cleanedData()
+    if (!peopleData.length) return redirect()
+    var addPerson = addPersonInline.bind(null, organisation)
+    async.forEach(peopleData, addPerson, function(err) {
+      if (err) return next(err)
+      redirect()
+    })
+  })
 })
 
 /**
@@ -237,24 +230,20 @@ app.get('/admin/add_user', function(req, res, next) {
 app.post('/admin/add_user', function(req, res, next) {
   var form = new forms.UserForm({data: req.body})
   var redisplay = function() { res.render('add_user', {form: form}) }
-  if (form.isValid()) {
-    redis.users.byUsername(form.cleanedData.username, function(err, user) {
+  if (!form.isValid()) return redisplay()
+  redis.users.byUsername(form.cleanedData.username, function(err, user) {
+    if (err) return next(err)
+    if (user) {
+      form.addError('username', 'This username is already taken.')
+      return redisplay()
+    }
+    redis.users.store(form.cleanedData, function(err, user, password) {
       if (err) return next(err)
-      if (user) {
-        form.addError('username', 'This username is already taken.')
-        return redisplay()
-      }
-      redis.users.store(form.cleanedData, function(err, user, password) {
-        if (err) return next(err)
-        // TODO Email user details
-        console.log("Psst! %s's password is %s!", user.username, password)
-        res.redirect('/admin/users')
-      })
+      // TODO Email user details
+      console.log("Psst! %s's password is %s!", user.username, password)
+      res.redirect('/admin/users')
     })
-  }
-  else {
-    redisplay()
-  }
+  })
 })
 
 http.createServer(app).listen(app.get('port'), function() {
