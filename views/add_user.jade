@@ -14,7 +14,9 @@ block content
           +field(form, 'lastName')(class='span3')
       +field(form, 'email')
       +field(form, 'username')
-      +field(form, 'isAdmin')
+      label
+        +widget(form, 'isAdmin')
+        |  Admin privileges
       .form-actions
         button.btn.btn-primary(type='submit') Add User
         | 
