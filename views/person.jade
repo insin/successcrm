@@ -1,0 +1,13 @@
+extends contact
+
+block contact_type
+  type = 'Person'
+
+block contact_id
+  h3 #{contact.title} #{contact.fullName()}
+  p
+    if (contact.jobTitle)
+      = contact.jobTitle
+    if (contact.organisation)
+      |  at 
+      a(href='/contact/' + contact.organisation.id)= contact.organisation.name

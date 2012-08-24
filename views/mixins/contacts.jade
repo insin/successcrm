@@ -47,3 +47,49 @@ mixin contactCell(contact)
       if (phone.type)
         | 
         span.label.label-inverse= phone.type
+
+mixin profilePhoneNumber(phone)
+  tr
+    td: i.icon-bullhorn
+    td
+      = phone.number
+      if phone.type
+        | 
+        span.label.label-inverse= phone.type
+
+mixin profileEmailAddress(email)
+  tr
+    td: i.icon-envelope
+    td
+      a(href='mailto:' + email.email)= email.email
+      if (email.type)
+        | 
+        span.label.label-inverse= email.type
+
+mixin profileAddress(address)
+  tr
+    td: i.icon-home
+    td
+      if (address.type)
+        | 
+        span.label.label-inverse= address.type
+      if (address.address)
+        br
+        = address.address
+      if (address.city)
+        br
+        = address.city
+      if (address.county)
+        br
+        = address.county
+      if (address.postCode)
+        br
+        = address.postCode
+      p
+        a(href='#')
+          i.icon-map-marker
+          |  show on map
+        |  | 
+        a(href='#')
+          i.icon-search
+          |  get directions

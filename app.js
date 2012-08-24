@@ -142,10 +142,10 @@ app.get('/contacts', function(req, res, next) {
 })
 
 app.get('/contact/:id', function(req, res, next) {
-  redis.contacts.byId(req.params.id, {related: redis.contacts.RELATED_PARTIAL}, function(err, contact) {
+  redis.contacts.byId(req.params.id, {fetchRelated: redis.contacts.RELATED_PARTIAL}, function(err, contact) {
     if (err) return next(err)
     if (!contact) return res.send(404)
-    res.render(contact.type, {contact: contact})
+    res.render(contact.type, {contact: contact, tasks: [], updates: []})
   })
 })
 

@@ -134,14 +134,15 @@ function fetchPartialRelated(contact, cb) {
       if (err) return cb(err)
       var multi = $r.multi()
       ids.forEach(function(id) {
-        multi.hmget(CONTACT + id, 'id', 'firstName', 'lastName')
+        multi.hmget(CONTACT + id, 'id', 'firstName', 'lastName', 'jobTitle')
       })
       multi.exec(function(err, people) {
         if (err) return cb(err)
         people.forEach(function(person) {
           contact.people.push({
             id: person[0]
-          , name: person.slice(1).filter(truthy).join(' ')
+          , name: [person[1], person[2]].filter(truthy).join(' ')
+          , jobTitle: person[3]
           })
         })
         cb(null, contact)

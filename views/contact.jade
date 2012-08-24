@@ -1,0 +1,84 @@
+extends layout
+
+block content
+  include mixins/contacts
+
+  block content_type
+     type = ''
+
+  .row-fluid
+    // Contact details
+    .span4
+      .module
+
+        block contact_id
+
+        table.table.table-condensed.table-borderless
+          col(width='1%')
+          tbody
+            for phone in contact.phoneNumbers
+              +profilePhoneNumber(phone)
+            for email in contact.emailAddresses
+              +profileEmailAddress(email)
+            for address in contact.addresses
+              +profileAddress(address)
+        p
+          a(href='/contact/#{contact.id}/edit') <i class="icon-pencil"></i> Edit this #{type}
+
+      .module
+        h2.module-legend About
+        p= contact.backgroundInfo
+        p
+          a(href='#') <i class="icon-pencil"></i> Edit background information
+
+      block additional_info
+
+      .module
+        h2.module-legend Tasks
+        p
+          a(href='#') <i class="icon-plus"></i> Add Task
+        table.table.table-condensed.table-borderless
+          col(width='1%')
+          tbody
+            for task in tasks
+              tr
+                td
+                  input(type='checkbox', value=task.id)
+                td
+                  if (task.category)
+                    span.label.label-inverse= task.category
+                    | 
+                  a(href='/task/#{task.id}/edit')
+                    = task.description
+                    | (#{task.assignedTo})
+                  br
+                  em task.dueDateDisplay()
+                  if (task.relatedTo && task.relatedTo.id != contact.id)
+                    br
+                    | for 
+                    a(href='/contact/' + task.relatedTo.id)= task.relatedTo.name
+
+    // History
+    .span8
+      .module
+        h2.module-legend History
+        p: a(href='#') <i class="icon-plus"></i> Add a Note
+        for update in updates
+          if (update.isTask())
+            .history-item
+              .icon: i.icon-check
+              p: em Completed by #{update.completedBy} #{update.completedAt.ago()}
+              if (update.relatedTo && update.relatedTo.id != contact.id)
+                p: a(href='/contact/' + update.relatedTo.id)= update.relatedTo.name
+              p
+                if (update.category)
+                  span.label.label-inverse= update.category
+                  | 
+                = update.description
+          if (update.isNote())
+            .history-item
+              .icon: i.icon-comment
+              p: em Note by #{update.createdBy} #{update.createdAt.ago()}
+              if (update.relatedTo && update.relatedTo.id != contact.id)
+                p: a(href='/contact/' + update.relatedTo.id)= update.relatedTo.name
+              p= update.note

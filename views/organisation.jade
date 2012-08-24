@@ -1,0 +1,18 @@
+extends contact
+
+block contact_type
+  type = 'Organisation'
+
+block contact_id
+  h3 #{contact.name}
+
+block additional_info
+  .module
+    h2.module-legend People at #{contact.name}
+    a(href='#') <i class="icon-plus"></i> Add Person
+    for person in contact.people
+      p
+        a(href='/contact/' + person.id)= person.name
+        if (person.jobTitle)
+          br
+          = person.jobTitle
