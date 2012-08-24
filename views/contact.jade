@@ -3,8 +3,8 @@ extends layout
 block content
   include mixins/contacts
 
-  block content_type
-     type = ''
+  block contact_type
+     contactType = ''
 
   .row-fluid
     // Contact details
@@ -23,7 +23,7 @@ block content
             for address in contact.addresses
               +profileAddress(address)
         p
-          a(href='/contact/#{contact.id}/edit') <i class="icon-pencil"></i> Edit this #{type}
+          a(href='/contact/#{contact.id}/edit') <i class="icon-pencil"></i> Edit this #{contactType}
 
       .module
         h2.module-legend About
