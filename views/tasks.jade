@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  block tasks_head
+    .pull-right
+      a.btn(href='/tasks/add') <i class="icon-plus"></i> Add Task
+  ul.nav.nav-tabs
+   li
+      a(href='/calendar') Calendar
+    li
+      a(href='/tasks') Tasks
+    li
+      a(href='/tasks/categories') Categories
+  block tasks_content

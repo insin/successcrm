@@ -141,6 +141,10 @@ app.get('/contacts', function(req, res, next) {
   })
 })
 
+app.get('/contacts/list', function(req, res, next) {
+  res.render('list_contacts')
+})
+
 app.get('/contact/:id', function(req, res, next) {
   redis.contacts.byId(req.params.id, {fetchRelated: redis.contacts.RELATED_PARTIAL}, function(err, contact) {
     if (err) return next(err)
@@ -283,6 +287,18 @@ app.post('/contacts/add_organisation', function(req, res, next) {
       redirect()
     })
   })
+})
+
+app.get('/calendar', function(req, res, next) {
+  res.render('calendar')
+})
+
+app.get('/tasks', function(req, res, next) {
+  res.render('tasks_list')
+})
+
+app.get('/tasks/categories', function(req, res, next) {
+  res.render('categories')
 })
 
 /**
