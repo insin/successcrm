@@ -298,7 +298,32 @@ app.get('/tasks', function(req, res, next) {
 })
 
 app.get('/tasks/categories', function(req, res, next) {
-  res.render('categories')
+  redis.categories.get(function(err, categories) {
+    if (err) return next(err)
+    res.render('categories', {categories: categories})
+  })
+})
+
+app.get('/tasks/add_category', function(req, res, next) {
+  var form = new forms.CategoryForm()
+  res.render('add_category', {form: form})
+})
+
+app.post('/tasks/add_category', function(req, res, next) {
+  var form = new forms.CategoryForm({data: req.body})
+  var redisplay = function() { res.render('add_category', {form: form}) }
+  if (!form.isValid()) return redisplay()
+  redis.categories.byName(form.cleanedData.name, function(err, category) {
+    if (err) return next(err)
+    if (category) {
+      form.addError('name', 'A category with this name already exists.')
+      return redisplay()
+    }
+    redis.categories.store(form.cleanedData, function(err, id) {
+      if (err) return next(err)
+      res.redirect('/tasks/categories')
+    })
+  })
 })
 
 /**

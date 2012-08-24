@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  .module
+    h2.module-legend New Category
+    include mixins/forms
+    form(action='/tasks/add_category', method='POST')
+      +csrf
+      +field(form, 'name')
+      .form-actions
+        button.btn.btn-primary(type='submit') Add Category
+        | 
+        a.btn(href='/tasks/categories') Cancel

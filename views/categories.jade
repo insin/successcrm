@@ -1,3 +1,18 @@
 extends tasks
 
 block tasks_head
+
+block tasks_content
+  .module
+    h2.module-legend Categories
+    table.table
+      thead
+        tr
+          th Name
+      tbody
+        for category in categories
+          tr
+            td
+              a(href='/tasks/category/' + category.id)= category.name
+  p
+    a(href='/tasks/add_category'): <i class="icon-plus"></i> Add New Category

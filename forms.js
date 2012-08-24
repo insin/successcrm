@@ -98,6 +98,12 @@ exports.AddressForm = forms.Form.extend({
 
 exports.AddressFormSet = forms.formsetFactory(exports.AddressForm)
 
+exports.CategoryForm = forms.Form.extend({
+  name: forms.CharField()
+
+, __mixin__: AddErrors
+})
+
 exports.TaskForm = forms.Form.extend({
   description : forms.CharField({maxLength: 50})
 , detail      : forms.CharField({required: false, widget: forms.Textarea})
