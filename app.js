@@ -4,6 +4,7 @@ var http = require('http')
 var express = require('express')
   , RedisStore = require('connect-redis')(express)
   , async = require('async')
+  , moment = require('moment')
   , allValid = require('newforms').allValid
   , extend = require('isomorph/object').extend
 
@@ -134,7 +135,24 @@ function requireAuthentication(req, res, next) {
 app.all('*', requireAuthentication)
 
 app.get('/', function(req, res, next) {
-  res.render('dashboard')
+  var now = moment()
+    , nextWeek = now.clone().add('days', 7).endOf('day')
+  redis.tasks.getByDateRange(0, nextWeek.valueOf(), {assignedTo: req.user.id}, function(err, tasks) {
+    if (err) return next(err)
+    var overdue = tasks
+      , upcoming = []
+    for (var i = 0, l = tasks.length; i < l; i++) {
+      if (tasks[i].due.valueOf() > now.valueOf()) {
+        overdue = tasks.slice(0, i)
+        upcoming = tasks.slice(i)
+        break
+      }
+    }
+    res.render('dashboard', {
+      overdue: overdue
+    , upcoming: upcoming
+    })
+  })
 })
 
 app.get('/contacts', function(req, res, next) {

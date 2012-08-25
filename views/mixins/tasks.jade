@@ -1,0 +1,15 @@
+mixin taskRow(task)
+  tr
+    td
+      input(type='checkbox', value=task.id)
+    td
+      if (task.category)
+        span.label.label-inverse= task.category
+        | 
+      a(href='/task/#{task.id}/edit')
+        = task.description
+      br
+      em= task.due.format('ddd, MMM D')
+      if (task.relatedTo)
+        | for 
+        a(href='/contact/' + task.relatedTo.id)= task.relatedTo.name
