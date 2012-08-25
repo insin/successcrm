@@ -198,7 +198,7 @@ app.post('/contacts/add_person', function(req, res, next) {
 
   redis.contacts.storePerson(person, function(err, id) {
     if (err) return next(err)
-    res.redirect('/contacts/' + id)
+    res.redirect('/contact/' + id)
   })
 })
 
@@ -278,7 +278,7 @@ app.post('/contacts/add_organisation', function(req, res, next) {
 
   redis.contacts.storeOrganisation(organisation, function(err, id) {
     if (err) return next(err)
-    var redirect = function() { res.redirect('/contacts/' + id) }
+    var redirect = function() { res.redirect('/contact/' + id) }
     var peopleData = peopleFormSet.cleanedData()
     if (!peopleData.length) return redirect()
     var addPerson = addPersonInline.bind(null, id)
