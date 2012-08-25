@@ -2,6 +2,7 @@ var http = require('http')
   , path = require('path')
 
 var express = require('express')
+  , RedisStore = require('connect-redis')(express)
   , async = require('async')
   , allValid = require('newforms').allValid
   , extend = require('isomorph/object').extend
@@ -62,7 +63,9 @@ app.configure(function() {
   app.use(express.bodyParser())
   app.use(express.methodOverride())
   app.use(express.cookieParser(settings.sessionSecret))
-  app.use(express.session())
+  app.use(express.session({
+    store: new RedisStore({client: require('./redis/connection')})
+  }))
   app.use(express.csrf())
   app.use(loadUser)
   app.use(requestContext)
