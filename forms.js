@@ -2,6 +2,9 @@ var forms = require('newforms')
   , object = require('isomorph/object')
 
 var choices = require('./choices')
+  , settings = require('./settings')
+
+var DATE_INPUT_FORMATS = settings.dateInputFormats
 
 /**
  * Mixin for programatically adding errors to a form instance.
@@ -107,16 +110,28 @@ exports.CategoryForm = forms.Form.extend({
 exports.TaskForm = forms.Form.extend({
   description : forms.CharField({maxLength: 50})
 , detail      : forms.CharField({required: false, widget: forms.Textarea})
-, due         : forms.DateField()
+, due         : forms.DateField({inputFormats: DATE_INPUT_FORMATS})
 , time        : forms.TimeField({required: false})
 , category    : forms.ChoiceField({required: false})
 , assignedTo  : forms.ChoiceField()
-, contact     : forms.CharField({require: false})
+, contact     : forms.CharField({required: false})
 
 , constructor: function(kwargs) {
     kwargs = object.extend({categories: [], users: []}, kwargs)
-    form.Form.call(this, kwargs)
+    forms.Form.call(this, kwargs)
     this.fields.category.setChoices(kwargs.categories)
     this.fields.assignedTo.setChoices(kwargs.users)
+  }
+})
+
+exports.TaskFilterForm = forms.Form.extend({
+  assignedTo  : forms.ChoiceField({required: false})
+, category    : forms.ChoiceField({required: false})
+
+, constructor: function(kwargs) {
+    kwargs = object.extend({categories: [], users: []}, kwargs)
+    forms.Form.call(this, kwargs)
+    this.fields.assignedTo.setChoices(kwargs.users)
+    this.fields.category.setChoices(kwargs.categories)
   }
 })

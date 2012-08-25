@@ -1,5 +1,6 @@
 module.exports = {
-  categories: require('./categories.js')
+  users: require('./users')
+, categories: require('./categories.js')
 , contacts: require('./contacts')
-, users: require('./users')
+, tasks: require('./tasks')
 }

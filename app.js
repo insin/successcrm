@@ -294,7 +294,58 @@ app.get('/calendar', function(req, res, next) {
 })
 
 app.get('/tasks', function(req, res, next) {
-  res.render('tasks_list')
+  async.parallel(
+    { users      : redis.users.choices.bind(null, {user: req.user, emptyChoice: 'Anyone'})
+    , categories : redis.categories.choices.bind(null, {emptyChoice: 'All'})
+    }
+  , function(err, kwargs) {
+      if (err) return next(err)
+      kwargs.data = req.query
+      var filterForm = new forms.TaskFilterForm(kwargs)
+      var filters = (filterForm.isValid() ? filterForm.cleanedData : {})
+      redis.tasks.get(filters, function(err, tasks) {
+        if (err) return next(err)
+        res.render('tasks_list', {
+          tasks: tasks
+        , filterForm: filterForm
+        , filters: filters
+        })
+      })
+    }
+  )
+})
+
+app.get('/tasks/add', function(req, res, next) {
+  async.parallel(
+    { categories : redis.categories.choices
+    , users      : redis.users.choices.bind(null, {user: req.user})
+    }
+  , function(err, kwargs) {
+      if (err) return next(err)
+      var form = new forms.TaskForm(kwargs)
+      res.render('add_task', {form: form})
+    }
+  )
+})
+
+app.post('/tasks/add', function(req, res, next) {
+  async.parallel(
+    { categories : redis.categories.choices
+    , users      : redis.users.choices.bind(null, {user: req.user})
+    }
+  , function(err, kwargs) {
+      if (err) return next(err)
+      kwargs.data = req.body
+      var form = new forms.TaskForm(kwargs)
+      var redisplay = function() { res.render('add_task', {form: form}) }
+      if (!form.isValid()) return redisplay()
+      redis.tasks.store(form.cleanedData, function(err, id) {
+        if (err) return next(err)
+        // TODO Redirect based on initial context
+        res.redirect('/tasks/')
+      })
+    }
+  )
 })
 
 app.get('/tasks/categories', function(req, res, next) {

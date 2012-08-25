@@ -1,5 +1,7 @@
 var crypto = require('crypto')
 
+var object = require('isomorph/object')
+
 var $r = require('./connection')
 
 module.exports = {
@@ -8,6 +10,7 @@ module.exports = {
 , byUsername: byUsername
 , store: store
 , get: get
+, choices: choices
 }
 
 var USER = 'user:#'
@@ -18,7 +21,7 @@ var USER = 'user:#'
 function byId(id, cb) {
   $r.hgetall(USER + id, function(err, user) {
     if (err) return cb(err)
-    cb(null, user)
+    cb(null, asUser(user))
   })
 }
 
@@ -48,7 +51,7 @@ function store(user, cb) {
       multi.hmset(USER + id, user)
       multi.exec(function(err) {
         if (err) return cb(err)
-        cb(null, user, password)
+        cb(null, asUser(user), password)
       })
     })
   })
@@ -61,10 +64,70 @@ function get(cb) {
     ids.forEach(function(id) { multi.hgetall(USER + id) })
     multi.exec(function(err, users) {
       if (err) return cb(err)
-      cb(null, users)
+      cb(null, users.map(asUser))
     })
   })
 }
+
+/**
+ * Creates user choices, sortd by name.
+ * @param options
+ * @param options.user the logged-in user - if given, they will be placed as the
+ *    first non-empty choice, with 'Me' instead of their name.
+ * @param options.emptyChoice if given, an empty choice will be included with
+ *    this as the given label, or blank if it's true.
+ */
+function choices(options, cb) {
+  var defaultOptions = {user: null, emptyChoice: null}
+  if (typeof options == 'function') {
+    cb = options
+    options = defaultOptions
+  }
+  else {
+    options = object.extend(defaultOptions, options)
+  }
+  get(function(err, users) {
+    if (err) return cb(err)
+    var choices = []
+    users.forEach(function(user) {
+      if (options.user === null || options.user.id !== user.id) {
+        choices.push([user.id, user.firstName + ' ' + user.lastName])
+      }
+    })
+    choices.sort(function(a, b) {
+      if (a[1] === b[1]) return 0
+      return (a[1] < b[1] ? -1 : 1)
+    })
+    if (options.user !== null) {
+      choices.unshift([options.user.id, 'Me'])
+    }
+    if (options.emptyChoice !== null) {
+      var emptyChoiceLabel = (options.emptyChoice === true
+                              ? ''
+                              : options.emptyChoice)
+      choices.unshift(['', emptyChoiceLabel])
+    }
+    cb(null, choices)
+  })
+}
+
+// ---------------------------------------------------------- Function Mixin ---
+
+var asUser = (function() {
+  function fullName() {
+    return this.firstName + ' ' + this.lastName
+  }
+
+  function toString() {
+    return this.fullName()
+  }
+
+  return function(obj) {
+    obj.fullName = fullName
+    obj.toString = toString
+    return obj
+  }
+})()
 
 // -------------------------------------------------------------------- Auth ---
 

@@ -262,6 +262,10 @@ Person.prototype.fullName = function() {
   return [this.firstName, this.lastName].filter(truthy).join(' ')
 }
 
+Person.prototype.toString = function() {
+  return this.fullName()
+}
+
 /**
  * Initialises Organisation details from a stored Object.
  */
@@ -273,3 +277,7 @@ function Organisation(obj) {
   Contact.call(this, obj)
 }
 object.inherits(Organisation, Contact)
+
+Organisation.prototype.toString = function() {
+  return this.name
+}

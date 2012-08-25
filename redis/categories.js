@@ -1,3 +1,5 @@
+var object = require('isomorph/object')
+
 var $r = require('./connection')
 
 module.exports = {
@@ -16,7 +18,7 @@ var CATEGORY = 'category:#'
 function byId(id, cb) {
   $r.hgetall(CATEGORY + id, function(err, category) {
     if (err) return cb(err)
-    cb(null, category)
+    cb(null, asCategory(category))
   })
 }
 
@@ -55,7 +57,7 @@ function get(cb) {
     ids.forEach(function(id) { multi.hgetall(CATEGORY + id) })
     multi.exec(function(err, categories) {
       if (err) return cb(err)
-      cb(null, categories)
+      cb(null, categories.map(asCategory))
     })
   })
 }
@@ -63,9 +65,32 @@ function get(cb) {
 /**
  * Returns categories as a list of [id, name] pairs.
  */
-function choices(cb) {
+function choices(options, cb) {
+  var defaultOptions = {emptyChoice: ''}
+  if (typeof options == 'function') {
+    cb = options
+    options = defaultOptions
+  }
+  else {
+    options = object.extend(defaultOptions, options)
+  }
   get(function(err, categories) {
     if (err) return cb(err)
-    cb(null, categories.map(function(c) { return [c.id, c.name] }))
+    var choices = [['', options.emptyChoice]]
+    categories.forEach(function(c) { choices.push([c.id, c.name]) })
+    cb(null, choices)
   })
 }
+
+// ---------------------------------------------------------- Function Mixin ---
+
+var asCategory = (function() {
+  function toString() {
+    return this.name
+  }
+
+  return function(obj) {
+    obj.toString = toString
+    return obj
+  }
+})()

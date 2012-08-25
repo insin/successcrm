@@ -1,1 +1,39 @@
 extends tasks
+
+block tasks_content
+  include mixins/forms
+  form.form-inline(action='/tasks', method='GET')
+    p
+      | Show tasks assigned to 
+      +widget(filterForm, 'assignedTo')
+      |  in category
+      +widget(filterForm, 'category')
+      | 
+      button.btn(type='submit') Filter
+
+  .module
+    h2.module-legend Upcoming Tasks
+    table.table
+      col(width='3%')
+      col(width='60%')
+      tbody
+        for task in tasks
+          tr
+            td
+              // TODO Complete task when checked
+              input(type='checkbox', name='complete', value=task.id)
+            td
+              if (task.category)
+                span.label.label-inverse= task.category.name
+                | 
+              strong= task.description
+              if (task.contact)
+                |  for 
+                a(href='/contact/' + task.contact.id)= task.contact
+              if (task.detail)
+                br
+                = task.detail
+            td
+              = task.due.format('DD MMMM YYYY')
+              br
+              | #{task.assignedTo}

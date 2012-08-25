@@ -1,6 +1,7 @@
 module.exports = {
 // App
   appName: 'Success CRM'
+, dateInputFormats: ['%d/%m/%Y', '%d/%m/%y']
 
 // Redis
 , redisPort: 6379

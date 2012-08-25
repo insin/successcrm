@@ -167,9 +167,9 @@ tasks:cron
    incomplete task ids, by due timestamp
 tasks:user:#<userid>
    incomplete task ids assigned to a user, by due timestamp
-tasks:user:#<userid>:category:#<categoryid>
+tasks:user:#<userid>:cat:#<categoryid>
    incomplete task ids assigned to a user by category, by due timestamp
-tasks:contact:#<contact>
+tasks:contact:#<contactid>
    incomplete tasks linked to a contact, by due timestamp
 
 The following are purely to support viewing completed tasks on the tasks list:
@@ -178,7 +178,7 @@ tasks:completed
    completed task ids, by completion timestamp
 tasks:user:#<userid>:completed
    completed task ids assigned to a user, by completion timestamp
-tasks:user:#<userid>:category:#<categoryid>:completed
+tasks:user:#<userid>:cat:#<categoryid>:completed
    completed task ids assigned to a user by category, by completion timestamp
 
 Updates
