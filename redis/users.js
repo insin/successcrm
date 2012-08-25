@@ -111,23 +111,23 @@ function choices(options, cb) {
   })
 }
 
-// ---------------------------------------------------------- Function Mixin ---
+// ------------------------------------------------- Prototype & Constructor ---
 
-var asUser = (function() {
-  function fullName() {
+var userProto = {
+  fullName: function() {
     return this.firstName + ' ' + this.lastName
   }
 
-  function toString() {
+, toString: function() {
     return this.fullName()
   }
+}
 
-  return function(obj) {
-    obj.fullName = fullName
-    obj.toString = toString
-    return obj
-  }
-})()
+function asUser(user) {
+  user.isAdmin = (user.isAdmin == 'true')
+  user.__proto__ = userProto
+  return user
+}
 
 // -------------------------------------------------------------------- Auth ---
 

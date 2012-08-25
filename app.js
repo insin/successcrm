@@ -342,7 +342,7 @@ app.post('/tasks/add', function(req, res, next) {
       var form = new forms.TaskForm(kwargs)
       var redisplay = function() { res.render('add_task', {form: form}) }
       if (!form.isValid()) return redisplay()
-      redis.tasks.store(form.cleanedData, function(err, id) {
+      redis.tasks.store(form.cleanedData, function(err, task) {
         if (err) return next(err)
         // TODO Redirect based on initial context
         res.redirect('/tasks/')
@@ -373,7 +373,7 @@ app.post('/tasks/add_category', function(req, res, next) {
       form.addError('name', 'A category with this name already exists.')
       return redisplay()
     }
-    redis.categories.store(form.cleanedData, function(err, id) {
+    redis.categories.store(form.cleanedData, function(err, category) {
       if (err) return next(err)
       res.redirect('/tasks/categories')
     })

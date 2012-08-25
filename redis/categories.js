@@ -45,7 +45,7 @@ function store(category, cb) {
     multi.sort(CATEGORIES, 'BY', CATEGORY + '*->name', 'ALPHA', 'STORE', CATEGORIES)
     multi.exec(function(err) {
       if (err) return cb(err)
-      cb(null, id)
+      cb(null, asCategory(category))
     })
   })
 }
@@ -82,15 +82,15 @@ function choices(options, cb) {
   })
 }
 
-// ---------------------------------------------------------- Function Mixin ---
+// ------------------------------------------------- Prototype & Constructor ---
 
-var asCategory = (function() {
-  function toString() {
+var categoryProto = {
+  toString: function() {
     return this.name
   }
+}
 
-  return function(obj) {
-    obj.toString = toString
-    return obj
-  }
-})()
+function asCategory(category) {
+  category.__proto__ = categoryProto
+  return category
+}

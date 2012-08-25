@@ -27,7 +27,7 @@ var TASK = 'task:#'
 function byId(id, cb) {
   $r.hgetall(TASK + id, function(err, task) {
     if (err) return cb(err)
-    fetchRelated(new Task(task), cb)
+    fetchRelated(asTask(task), cb)
   })
 }
 
@@ -38,12 +38,7 @@ function store(task, cb) {
   $r.incr(NEXT_ID, function(err, id) {
     if (err) return cb(err)
     task.id = id
-    // If a due time is specified, incorporate it into the due date
-    if (task.time) {
-      task.due.setHours(task.time.getHours())
-      task.due.setMinutes(task.time.getMinutes())
-    }
-    delete task.time
+    task = prepareForStorage(task)
     var due = task.due = task.due.valueOf()
     var multi = $r.multi()
     multi.hmset(TASK + id, task)
@@ -58,7 +53,7 @@ function store(task, cb) {
     }
     multi.exec(function(err) {
       if (err) return cb(err)
-      cb(null, id)
+      cb(null, asTask(task))
     })
   })
 }
@@ -120,7 +115,7 @@ function getTasks(command, start, stop, options, cb) {
     multi.exec(function(err, tasks) {
       if (err) return cb(err)
       async.map(tasks
-      , function(task, cb) { fetchRelated(new Task(task), cb) }
+      , function(task, cb) { fetchRelated(asTask(task), cb) }
       , function(err, tasks) {
           if (err) return cb(err)
           cb(null, tasks)
@@ -128,6 +123,22 @@ function getTasks(command, start, stop, options, cb) {
       )
     })
   })
+}
+
+// ------------------------------------------------- Prototype & Constructor ---
+
+var taskProto = {
+  isOverdue: function() {
+    return (this.due.valueOf() < moment().valueOf())
+  }
+}
+
+function asTask(task) {
+  task.due = moment(+task.due)
+  // If a time was set, it's also represented in the due date
+  task.time = (task.time == 'true' ? task.due.clone() : null)
+  task.__proto__ = taskProto
+  return task
 }
 
 function fetchRelated(task, cb) {
@@ -146,13 +157,18 @@ function fetchRelated(task, cb) {
   })
 }
 
-function Task(obj) {
-  this.id = obj.id
-  this.description = obj.description
-  this.detail = obj.detail
-  this.due = moment(+obj.due)
-  this.time = this.due.clone()
-  this.category = obj.category
-  this.assignedTo = obj.assignedTo
-  this.contact = obj.contact
+function prepareForStorage(task) {
+  // Work on a shallow copy
+  task = object.extend({}, task)
+  // If a due time is specified, incorporate it into the due date and set a flag
+  // to indicate whether or not the time was set.
+  if (task.time) {
+    task.due.setHours(task.time.getHours())
+    task.due.setMinutes(task.time.getMinutes())
+    task.time = true
+  }
+  else {
+    task.time = false
+  }
+  return task
 }

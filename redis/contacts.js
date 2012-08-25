@@ -37,7 +37,7 @@ function storePerson(person, cb) {
   $r.incr(NEXT_ID, function(err, id) {
     person.id = id
     person.type = TYPE_PERSON
-    Contact.stringifyProps(person)
+    person = prepareForStorage(person)
     var multi = $r.multi()
     multi.hmset(CONTACT + id, person)
     if (person.organisation) {
@@ -56,7 +56,7 @@ function storeOrganisation(organisation, cb) {
   $r.incr(NEXT_ID, function(err, id) {
     organisation.id = id
     organisation.type = TYPE_ORGANISATION
-    Contact.stringifyProps(organisation)
+    organisation = prepareForStorage(organisation)
     var multi = $r.multi()
     multi.hmset(CONTACT + id, organisation)
     multi.rpush(CONTACTS, id)
@@ -81,7 +81,7 @@ function byId(id, options, cb) {
   $r.hgetall(CONTACT + id, function(err, contact) {
     if (err) return cb(err)
     if (!contact) return cb(null, null)
-    contact = Contact.fromObject(contact)
+    contact = asContact(contact)
     if (options.fetchRelated === false) return cb(null, contact)
     if (options.fetchRelated == RELATED_FULL) {
       fetchFullRelated(contact, cb)
@@ -90,6 +90,113 @@ function byId(id, options, cb) {
       fetchPartialRelated(contact, cb)
     }
   })
+}
+
+function get(options, cb) {
+  var defaultOptions = {start: 0, count: 30, fetchRelated: false}
+  if (typeof options == 'function') {
+    cb = options
+    options = defaultOptions
+  }
+  else {
+    options = object.extend(defaultOptions, options)
+  }
+
+  var start = options.start
+    , stop = options.start + (options.count - 1)
+  $r.lrange(CONTACTS, start, stop, function(err, ids) {
+    if (err) return cb(err)
+    async.map(ids
+    , function(id, cb) {
+        byId(id, {fetchRelated: options.fetchRelated}, cb)
+      }
+    , function(err, contacts) {
+        if (err) return cb(err)
+        cb(null, contacts)
+      }
+    )
+  })
+}
+
+// ----------------------------------------------- Prototypes & Constructors ---
+
+var contactProto = {
+  isPerson: function() {
+    return (this.type == TYPE_PERSON)
+  }
+
+, isOrganisation: function() {
+    return (this.type == TYPE_ORGANISATION)
+  }
+
+, shortAddress:function() {
+    if (!this.addresses.length) return ''
+    var a = this.addresses[0]
+    return [a.address, a.city, a.county, a.postCode].filter(truthy).join(', ')
+  }
+
+, primaryEmail: function() {
+    if (!this.emailAddresses.length) return null
+    return this.emailAddresses[0]
+  }
+
+, primaryPhone: function() {
+    if (!this.phoneNumbers.length) return null
+    return this.phoneNumbers[0]
+  }
+}
+
+var personProto = {
+  __proto__: contactProto
+
+, fullName: function() {
+    return [this.firstName, this.lastName].filter(truthy).join(' ')
+  }
+
+, toString: function() {
+    return this.fullName()
+  }
+}
+
+var organisationProto = {
+  __proto__: contactProto
+
+, toString: function() {
+    return this.name
+  }
+}
+
+function asContact(contact) {
+  contact.phoneNumbers = JSON.parse(contact.phoneNumbers)
+  contact.emailAddresses = JSON.parse(contact.emailAddresses)
+  contact.addresses = JSON.parse(contact.addresses)
+  return (contact.type == TYPE_PERSON
+          ? asPerson(contact)
+          : asOrganisation(contact))
+}
+
+function asPerson(person) {
+  person.__proto__ = personProto
+  return person
+}
+
+function asOrganisation(organisation) {
+  // Relationships with people are stored seprately - this Array is initialised
+  // to hold details of any people who are fetched later.
+  this.people = []
+  organisation.people = []
+  organisation.__proto__ = organisationProto
+  return organisation
+}
+
+function prepareForStorage(contact) {
+  // Work on a shallow copy
+  contact = object.extend({}, contact)
+  // JSON encode contact arrays
+  contact.phoneNumbers = JSON.stringify(contact.phoneNumbers)
+  contact.emailAddresses = JSON.stringify(contact.emailAddresses)
+  contact.addresses = JSON.stringify(contact.addresses)
+  return contact
 }
 
 /**
@@ -104,7 +211,7 @@ function fetchFullRelated(contact, cb) {
       multi.exec(function(err, people) {
         if (err) return cb(err)
         people.forEach(function(person) {
-          person = Contact.fromObject(person)
+          person = asContact(person)
           person.organisation = contact
           contact.people.push(person)
         })
@@ -116,7 +223,7 @@ function fetchFullRelated(contact, cb) {
     if (!contact.organisation) return cb(null, contact)
     $r.hgetall(CONTACT + contact.organisation, function(err, organisation) {
       if (err) return cb(err)
-      contact.organisation = Contact.fromObject(organisation)
+      contact.organisation = asContact(organisation)
       cb(null, contact)
     })
   }
@@ -160,124 +267,4 @@ function fetchPartialRelated(contact, cb) {
   else {
     cb(new Error('Unknown contact type: ' + contact.type))
   }
-}
-
-function get(options, cb) {
-  var defaultOptions = {start: 0, count: 30, fetchRelated: false}
-  if (typeof options == 'function') {
-    cb = options
-    options = defaultOptions
-  }
-  else {
-    options = object.extend(defaultOptions, options)
-  }
-
-  var start = options.start
-    , stop = options.start + (options.count - 1)
-  $r.lrange(CONTACTS, start, stop, function(err, ids) {
-    if (err) return cb(err)
-    async.map(ids
-    , function(id, cb) {
-        byId(id, {fetchRelated: options.fetchRelated}, cb)
-      }
-    , function(err, contacts) {
-        if (err) return cb(err)
-        cb(null, contacts)
-      }
-    )
-  })
-}
-
-// ---------------------------------------------------- Contact Constructors ---
-
-/**
- * Initialises common Contact details from a stored Object.
- */
-function Contact(obj) {
-  this.id = obj.id
-  this.type = obj.type
-  this.backgroundInfo = obj.backgroundInfo
-  // These properties are stored a stringified JSON Arrays
-  this.phoneNumbers = JSON.parse(obj.phoneNumbers)
-  this.emailAddresses = JSON.parse(obj.emailAddresses)
-  this.addresses = JSON.parse(obj.addresses)
-}
-
-/**
- * Creates a Contact of the appropriate type from a storage Object.
- */
-Contact.fromObject = function(obj) {
-  return (obj.type == TYPE_PERSON ? new Person(obj) : new Organisation(obj))
-}
-
-/**
- * Stringifies any properties which should be stringified prior to being stored.
- */
-Contact.stringifyProps = function(obj) {
-  obj.phoneNumbers = JSON.stringify(obj.phoneNumbers)
-  obj.emailAddresses = JSON.stringify(obj.emailAddresses)
-  obj.addresses = JSON.stringify(obj.addresses)
-}
-
-Contact.prototype.isPerson = function() {
-  return (this instanceof Person)
-}
-
-Contact.prototype.isOrganisation = function() {
-  return (this instanceof Organisation)
-}
-
-Contact.prototype.shortAddress = function() {
-  if (!this.addresses.length) return ''
-  var a = this.addresses[0]
-  return [a.address, a.city, a.county, a.postCode].filter(truthy).join(', ')
-}
-
-Contact.prototype.primaryEmail = function() {
-  if (!this.emailAddresses.length) return null
-  return this.emailAddresses[0]
-}
-
-Contact.prototype.primaryPhone = function() {
-  if (!this.phoneNumbers.length) return null
-  return this.phoneNumbers[0]
-}
-
-/**
- * Initialises Person details from a stored Object.
- */
-function Person(obj) {
-  this.title = obj.title
-  this.firstName = obj.firstName
-  this.lastName = obj.lastName
-  this.jobTitle = obj.jobTitle
-  // Only the id of any related organistion is stored - this will be overwritten
-  // with an Object or Organisation if more details are fetched later.
-  this.organisation = obj.organisation
-  Contact.call(this, obj)
-}
-object.inherits(Person, Contact)
-
-Person.prototype.fullName = function() {
-  return [this.firstName, this.lastName].filter(truthy).join(' ')
-}
-
-Person.prototype.toString = function() {
-  return this.fullName()
-}
-
-/**
- * Initialises Organisation details from a stored Object.
- */
-function Organisation(obj) {
-  this.name = obj.name
-  // Relationships with people are stored seprately - this Array is initialised
-  // to hold details of any people who are fetched later.
-  this.people = []
-  Contact.call(this, obj)
-}
-object.inherits(Organisation, Contact)
-
-Organisation.prototype.toString = function() {
-  return this.name
 }
