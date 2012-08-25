@@ -23,6 +23,9 @@ block tasks_content
               // TODO Complete task when checked
               input(type='checkbox', name='complete', value=task.id)
             td
+              if (task.isOverdue())
+                span.label.label-important Overdue
+                | 
               if (task.category)
                 span.label.label-inverse= task.category.name
                 | 
