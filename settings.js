@@ -1,7 +1,10 @@
 module.exports = {
 // App
   appName: 'Success CRM'
-, dateInputFormats: ['%d/%m/%Y', '%d/%m/%y']
+, dateInputFormats: [
+    '%d/%m/%Y' // dd/mm/yyyy
+  , '%d/%m/%y' // dd/mm/yy
+  ]
 
 // Redis
 , redisPort: 6379
@@ -11,6 +14,6 @@ module.exports = {
 , redisAuth: false
 
 // Express
-, cookieSecret: 'your secret here'
 , port: 3000
+, sessionSecret: 'your secret here'
 }

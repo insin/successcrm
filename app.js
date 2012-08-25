@@ -61,7 +61,7 @@ app.configure(function() {
   app.use(express.logger('dev'))
   app.use(express.bodyParser())
   app.use(express.methodOverride())
-  app.use(express.cookieParser(settings.cookieSecret))
+  app.use(express.cookieParser(settings.sessionSecret))
   app.use(express.session())
   app.use(express.csrf())
   app.use(loadUser)
