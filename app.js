@@ -170,7 +170,14 @@ app.get('/contact/:id', function(req, res, next) {
   redis.contacts.byId(req.params.id, {fetchRelated: redis.contacts.RELATED_PARTIAL}, function(err, contact) {
     if (err) return next(err)
     if (!contact) return res.send(404)
-    res.render(contact.type, {contact: contact, tasks: [], updates: []})
+    redis.tasks.get({contact: contact.id}, function(err, tasks) {
+      res.render(contact.type, {
+        contact: contact
+      , tasks: tasks
+      // TODO Retrieve updates once implemented
+      , updates: []
+      })
+    })
   })
 })
 

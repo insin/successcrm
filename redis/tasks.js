@@ -79,7 +79,8 @@ function getByDateRange(start, stop, options, cb) {
  * @param user a user id.
  * @param category a category id.
  */
-function lookupKey(user, category) {
+function lookupKey(user, category, contact) {
+  if (contact) return CONTACT_TASKS + contact
   if (category && user) return USER_TASKS_BY_CATEGORY(user, category)
   if (category) return CATEGORY_TASKS + category
   if (user) return USER_TASKS + user
@@ -97,7 +98,7 @@ function lookupKey(user, category) {
  * @param cb callback function
  */
 function getTasks(command, start, stop, options, cb) {
-  var defaultOptions = {assignedTo: null, category: null}
+  var defaultOptions = {assignedTo: null, category: null, contact: null}
   if (typeof options == 'function') {
     cb = options
     options = defaultOptions
@@ -106,7 +107,7 @@ function getTasks(command, start, stop, options, cb) {
     options = object.extend(defaultOptions, options)
   }
 
-  var key = lookupKey(options.assignedTo, options.category)
+  var key = lookupKey(options.assignedTo, options.category, options.contact)
 
   $r[command](key, start, stop, function(err, ids) {
     if (err) return cb(err)
