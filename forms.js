@@ -119,7 +119,7 @@ exports.CategoryForm = forms.Form.extend({
 })
 
 exports.TaskForm = forms.Form.extend({
-  description : forms.CharField({maxLength: 50})
+  description : forms.CharField({maxLength: 140})
 , detail      : forms.CharField({required: false, widget: forms.Textarea})
 , due         : forms.DateField({inputFormats: DATE_INPUT_FORMATS})
 , time        : forms.TimeField({required: false})

@@ -5,6 +5,7 @@ var express = require('express')
   , RedisStore = require('connect-redis')(express)
   , async = require('async')
   , moment = require('moment')
+  , Calendar = require('calendar').Calendar
   , allValid = require('newforms').allValid
   , extend = require('isomorph/object').extend
 
@@ -95,6 +96,10 @@ app.param(function(name, fn) {
 
 // Validate that :id parameters are numeric
 app.param('id', /^\d+$/)
+// Validate that :year parameters are four digits
+app.param('year', /^\d{4}$/)
+// Validate that :month parameters are 1-12
+app.param('month', /^1[0-2]?|[2-9]$/)
 
 // ================================================================== Routes ===
 
@@ -318,7 +323,75 @@ app.post('/contacts/add_organisation', function(req, res, next) {
 })
 
 app.get('/calendar', function(req, res, next) {
-  res.render('calendar')
+  var today = moment()
+  res.redirect('/calendar/' + today.year() + '/' + (today.month() + 1))
+})
+
+app.get('/calendar/:year/:month', function(req, res, next) {
+  var year = +req.params.year
+    , month = +req.params.month - 1
+    , displayMonth = moment([year, month])
+    , today = new Date()
+    , firstDate = null
+    , lastDate = null
+    , lookup = {}
+
+  var calendar = new Calendar(settings.weekStartsMonday ? 1 : 0)
+  var weeks = calendar.monthDates(year, month, function(d) {
+    if (firstDate === null) {
+      firstDate = d
+    }
+    else {
+      lastDate = d
+    }
+    if (typeof lookup[d.getMonth()] == 'undefined') {
+      lookup[d.getMonth()] = {}
+    }
+    var day = {
+      date: d.getDate()
+    , month: d.getMonth()
+    , otherMonth: d.getMonth() !== month
+    , tasks: null
+    }
+    if (d.getDate() == today.getDate() &&
+        d.getMonth() == today.getMonth() &&
+        d.getFullYear() == today.getFullYear()) {
+      day.today = true
+    }
+    lookup[day.month][day.date] = day
+    return day
+  })
+
+  var from = moment(firstDate).startOf('day').valueOf()
+    , to = moment(lastDate).endOf('day').valueOf()
+  async.parallel(
+    { users      : redis.users.choices.bind(null, {user: req.user, emptyChoice: 'Anyone'})
+    , categories : redis.categories.choices.bind(null, {emptyChoice: 'All'})
+    }
+  , function(err, kwargs) {
+      if (err) return next(err)
+      kwargs.data = req.query
+      var filterForm = new forms.TaskFilterForm(kwargs)
+      var filters = (filterForm.isValid() ? filterForm.cleanedData : {})
+      redis.tasks.getByDateRange(from, to, filters, function(err, tasks) {
+        if (err) return next(err)
+        tasks.forEach(function(task) {
+          var day = lookup[task.due.month()][task.due.date()]
+          if (day.tasks === null) {
+            day.tasks = []
+          }
+          day.tasks.push(task)
+        })
+        res.render('calendar', {
+          displayMonth: displayMonth
+        , previousMonth: moment(displayMonth).subtract('months', 1).format('YYYY/M')
+        , nextMonth: moment(displayMonth).add('months', 1).format('YYYY/M')
+        , weeks: weeks
+        , filterForm: filterForm
+        })
+      })
+    }
+  )
 })
 
 app.get('/tasks', function(req, res, next) {

@@ -5,6 +5,7 @@ module.exports = {
     '%d/%m/%Y' // dd/mm/yyyy
   , '%d/%m/%y' // dd/mm/yy
   ]
+, weekStartsMonday: true
 
 // Redis
 , redisPort: 6379

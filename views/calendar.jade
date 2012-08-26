@@ -1,1 +1,52 @@
 extends tasks
+
+block tasks_content
+  include mixins/forms
+  form.form-inline(action='/calendar/#{displayMonth.format('YYYY/M')}', method='GET')
+    span.month-nav
+      a(href='/calendar/#{previousMonth}')
+        i.icon-arrow-left
+        | 
+      strong= displayMonth.format('MMMM YYYY')
+      a(href='/calendar/#{nextMonth}')
+        | 
+        i.icon-arrow-right
+    | Tasks assigned to 
+    +widget(filterForm, 'assignedTo')
+    |  in category 
+    +widget(filterForm, 'category')
+    | 
+    button.btn(type='submit') Filter
+  table.table.table-bordered.table-condensed.table-calendar
+    thead
+      tr
+        // TODO Base on settings
+        th Monday
+        th Tuesday
+        th Wednesday
+        th Thursday
+        th Friday
+        th Saturday
+        th Sunday
+    tbody
+      for week in weeks
+        tr
+          for day in week
+            cellClass = day.today ? 'today' : false
+            td(class=cellClass)
+              dayClass = day.otherMonth ? 'other-month' : false
+              .day(class=dayClass)= day.date
+              if (day.tasks)
+                for task in day.tasks
+                  .task
+                    if (task.category)
+                      span.label.label-inverse= task.category
+                    br
+                    if (task.time)
+                      strong= task.time.format('HH:mm')
+                      | 
+                    = task.description
+                    if (task.contact)
+                      br
+                      | for 
+                      a(href='/contact/' + task.contact.id)= task.contact
