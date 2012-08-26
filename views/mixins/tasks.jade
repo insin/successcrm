@@ -1,15 +1,42 @@
-mixin taskRow(task)
+mixin taskTitle(task)
+  .task-title
+    if (task.category)
+      span.label.label-inverse= task.category
+      | 
+    a(href='/task/#{task.id}/edit')
+      = task.description
+      block
+
+mixin taskDetail(task)
+  if (task.detail)
+    .more-detail= task.detail
+
+mixin taskTime(task)
+  .task-time
+    em
+      = task.due.format('ddd, MMM D')
+      if (task.time)
+        | , #{task.time.format('H:mm')}
+    block
+
+mixin ownTaskRow(task)
   tr
     td
-      input(type='checkbox', value=task.id)
+      input(type='checkbox', name='task', value=task.id)
     td
-      if (task.category)
-        span.label.label-inverse= task.category
-        | 
-      a(href='/task/#{task.id}/edit')
-        = task.description
-      br
-      em= task.due.format('ddd, MMM D')
-      if (task.relatedTo)
-        | for 
-        a(href='/contact/' + task.relatedTo.id)= task.relatedTo.name
+      +taskTitle(task)
+      +taskDetail(task)
+      +taskTime(task)
+        if (task.contact)
+          |  for 
+          a(href='/contact/' + task.contact.id)= task.contact
+
+mixin contactTaskRow(task)
+  tr
+    td
+      input(type='checkbox', name='task', value=task.id)
+    td
+      +taskTitle(task)
+        |  (#{task.assignedTo})
+      +taskDetail(task)
+      +taskTime(task)

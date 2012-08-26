@@ -1,6 +1,7 @@
 mixin csrf
   div
     input(type='hidden', name='_csrf', value=csrfToken)
+    block
 
 mixin formErrors(form)
   errors = form.nonFieldErrors().errors

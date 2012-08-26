@@ -7,6 +7,7 @@ block content
     include mixins/forms
     form(action='/tasks/add', method='POST')
       +csrf
+        != contextForm.asHidden()
       .row
         .span6
           .row
@@ -26,11 +27,11 @@ block content
           .row
             .span3
               +field(form, 'assignedTo')(class='span3')
-          .row
-            .span6
-              // TODO Only display if a contact is not in context
-              // TODO Lookup contacts by name when typing in this field
-              +field(form, 'contact')(class='span6')
+          if (!context.contact)
+            .row
+              .span6
+                // TODO Lookup contacts by name when typing in this field
+                +field(form, 'contact')(class='span6')
         #moreDetail.span6
           +field(form, 'detail')(class='span6')
       .form-actions

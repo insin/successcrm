@@ -23,20 +23,23 @@ block tasks_content
               // TODO Complete task when checked
               input(type='checkbox', name='complete', value=task.id)
             td
-              if (task.isOverdue())
-                span.label.label-important Overdue
-                | 
-              if (task.category)
-                span.label.label-inverse= task.category.name
-                | 
-              strong= task.description
-              if (task.contact)
-                |  for 
-                a(href='/contact/' + task.contact.id)= task.contact
+              .task-title
+                if (task.isOverdue())
+                  span.label.label-important Overdue
+                  | 
+                if (task.category)
+                  span.label.label-inverse= task.category.name
+                  | 
+                strong= task.description
+                if (task.contact)
+                  |  for 
+                  a(href='/contact/' + task.contact.id)= task.contact
               if (task.detail)
-                br
-                = task.detail
+                .more-detail= task.detail
             td
-              = task.due.format('DD MMMM YYYY')
-              br
-              | #{task.assignedTo}
+              .task-date= task.due.format('DD MMMM YYYY')
+              if (task.time)
+                .task-time
+                  | at 
+                  = task.time.format('H:mm')
+              .task-assigned-to= task.assignedTo

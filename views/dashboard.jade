@@ -6,7 +6,7 @@ block content
   .row-fluid
     .span4.dashboard-tasks
       h2.pull-left Your Tasks
-      a.pull-right(href='/tasks/add') <i class="icon-plus"></i> Add Task
+      a.pull-right(href='/tasks/add?context-next=/') <i class="icon-plus"></i> Add Task
       .clearfix
       if (overdue.length)
         h3
@@ -16,7 +16,7 @@ block content
           col(width='1%')
           tbody
             for task in overdue
-              +taskRow(task)
+              +ownTaskRow(task)
       if (upcoming.length)
         h3
           | Next 7 Days 
@@ -25,7 +25,7 @@ block content
           col(width='1%')
           tbody
             for task in upcoming
-              +taskRow(task)
+              +ownTaskRow(task)
     .span8
       .module
         h2.module-legend Latest Updates

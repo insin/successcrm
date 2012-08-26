@@ -20,6 +20,17 @@ var AddErrors = {
   }
 }
 
+/**
+ * Mixin for rendering a form as hidden fields.
+ */
+var RenderHidden = {
+  asHidden: function() {
+    return this.boundFields().map(function(field) {
+      return field.asHidden()
+    }).join('')
+  }
+}
+
 exports.LoginForm = forms.Form.extend({
   username : forms.CharField()
 , password : forms.CharField({widget: forms.PasswordInput})
@@ -121,6 +132,18 @@ exports.TaskForm = forms.Form.extend({
     forms.Form.call(this, kwargs)
     this.fields.category.setChoices(kwargs.categories)
     this.fields.assignedTo.setChoices(kwargs.users)
+  }
+})
+
+exports.TaskContextForm = forms.Form.extend({
+  next    : forms.CharField({required: false})
+, contact : forms.IntegerField({required: false, minValue: 1})
+
+, __mixin__: RenderHidden
+, constructor: function(kwargs) {
+    kwargs.prefix = 'context'
+    kwargs.autoId = false
+    forms.Form.call(this, kwargs)
   }
 })
 

@@ -350,8 +350,12 @@ app.get('/tasks/add', function(req, res, next) {
     }
   , function(err, kwargs) {
       if (err) return next(err)
+      var contextForm = new forms.TaskContextForm({data: req.query})
+        , context = contextForm.isValid() ? contextForm.cleanedData : {}
       var form = new forms.TaskForm(kwargs)
-      res.render('add_task', {form: form})
+      res.render('add_task', {
+        form: form, context: context, contextForm: contextForm
+      })
     }
   )
 })
@@ -364,13 +368,24 @@ app.post('/tasks/add', function(req, res, next) {
   , function(err, kwargs) {
       if (err) return next(err)
       kwargs.data = req.body
+      var contextForm = new forms.TaskContextForm({data: req.body})
+        , context = contextForm.isValid() ? contextForm.cleanedData : {}
       var form = new forms.TaskForm(kwargs)
-      var redisplay = function() { res.render('add_task', {form: form}) }
+      var redisplay = function() {
+        res.render('add_task', {
+          form: form, context: context, contextForm: contextForm
+        })
+      }
       if (!form.isValid()) return redisplay()
+      var redirect = (context.contact
+                      ? '/contact/' + context.contact
+                      : context.next || '/tasks')
+      if (context.contact) {
+        form.cleanedData.contact = context.contact
+      }
       redis.tasks.store(form.cleanedData, function(err, task) {
         if (err) return next(err)
-        // TODO Redirect based on initial context
-        res.redirect('/tasks/')
+        res.redirect(redirect)
       })
     }
   )

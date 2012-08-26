@@ -2,6 +2,7 @@ extends layout
 
 block content
   include mixins/contacts
+  include mixins/tasks
 
   block contact_type
      contactType = ''
@@ -36,27 +37,12 @@ block content
       .module
         h2.module-legend Tasks
         p
-          a(href='#') <i class="icon-plus"></i> Add Task
+          a(href='/tasks/add?context-contact=#{contact.id}') <i class="icon-plus"></i> Add Task
         table.table.table-condensed.table-borderless
           col(width='1%')
           tbody
             for task in tasks
-              tr
-                td
-                  input(type='checkbox', value=task.id)
-                td
-                  if (task.category)
-                    span.label.label-inverse= task.category
-                    | 
-                  a(href='/task/#{task.id}/edit')
-                    = task.description
-                    | (#{task.assignedTo})
-                  br
-                  em task.dueDateDisplay()
-                  if (task.relatedTo && task.relatedTo.id != contact.id)
-                    br
-                    | for 
-                    a(href='/contact/' + task.relatedTo.id)= task.relatedTo.name
+              +contactTaskRow(task)
 
     // History
     .span8
