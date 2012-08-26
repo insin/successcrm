@@ -69,14 +69,17 @@
   height: 100px;
   width: 14.28%;
 }
-.table-calendar td.today {
-  background-color: #efefef;
+.table-calendar th {
+  text-align: center;
 }
-.table-calendar div.day {
+.table-calendar .today {
+  background-color: #ddd;
+}
+.table-calendar .day {
   font-weight: bold;
   text-align: right;
 }
-.table-calendar div.other-month {
+.other-month .day {
   color: #999;
 }
 .month-nav {

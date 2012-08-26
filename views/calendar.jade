@@ -2,13 +2,14 @@ extends tasks
 
 block tasks_content
   include mixins/forms
-  form.form-inline(action='/calendar/#{displayMonth.format('YYYY/M')}', method='GET')
+
+  form.form-inline(action=cal.currentURL, method='GET')
     span.month-nav
-      a(href='/calendar/#{previousMonth}')
+      a(href=cal.previousURL)
         i.icon-arrow-left
         | 
-      strong= displayMonth.format('MMMM YYYY')
-      a(href='/calendar/#{nextMonth}')
+      strong= cal.month
+      a(href=cal.nextURL)
         | 
         i.icon-arrow-right
     | Tasks assigned to 
@@ -17,36 +18,28 @@ block tasks_content
     +widget(filterForm, 'category')
     | 
     button.btn(type='submit') Filter
+
   table.table.table-bordered.table-condensed.table-calendar
     thead
       tr
-        // TODO Base on settings
-        th Monday
-        th Tuesday
-        th Wednesday
-        th Thursday
-        th Friday
-        th Saturday
-        th Sunday
+        for heading in cal.headings
+          th= heading
     tbody
-      for week in weeks
+      for row in cal.rows
         tr
-          for day in week
-            cellClass = day.today ? 'today' : false
-            td(class=cellClass)
-              dayClass = day.otherMonth ? 'other-month' : false
-              .day(class=dayClass)= day.date
-              if (day.tasks)
-                for task in day.tasks
-                  .task
-                    if (task.category)
-                      span.label.label-inverse= task.category
+          for cell in row
+            td(class=cell.classes)
+              .day= cell.date
+              for task in cell.tasks
+                .task
+                  if (task.category)
+                    span.label.label-inverse= task.category
+                  br
+                  if (task.time)
+                    strong= task.time.format('HH:mm')
+                    | 
+                  = task.description
+                  if (task.contact)
                     br
-                    if (task.time)
-                      strong= task.time.format('HH:mm')
-                      | 
-                    = task.description
-                    if (task.contact)
-                      br
-                      | for 
-                      a(href='/contact/' + task.contact.id)= task.contact
+                    | for 
+                    a(href='/contact/' + task.contact.id)= task.contact

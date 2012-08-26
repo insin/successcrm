@@ -5,13 +5,13 @@ var express = require('express')
   , RedisStore = require('connect-redis')(express)
   , async = require('async')
   , moment = require('moment')
-  , Calendar = require('calendar').Calendar
   , allValid = require('newforms').allValid
   , extend = require('isomorph/object').extend
 
 var settings = require('./settings')
   , forms = require('./forms')
   , redis = require('./redis')
+  , taskCalendar = require('./calendar')
 
 var app = express()
 
@@ -99,7 +99,7 @@ app.param('id', /^\d+$/)
 // Validate that :year parameters are four digits
 app.param('year', /^\d{4}$/)
 // Validate that :month parameters are 1-12
-app.param('month', /^1[0-2]?|[2-9]$/)
+app.param('month', /^0?[1-9]|1[0-2]$/)
 
 // ================================================================== Routes ===
 
@@ -328,42 +328,6 @@ app.get('/calendar', function(req, res, next) {
 })
 
 app.get('/calendar/:year/:month', function(req, res, next) {
-  var year = +req.params.year
-    , month = +req.params.month - 1
-    , displayMonth = moment([year, month])
-    , today = new Date()
-    , firstDate = null
-    , lastDate = null
-    , lookup = {}
-
-  var calendar = new Calendar(settings.weekStartsMonday ? 1 : 0)
-  var weeks = calendar.monthDates(year, month, function(d) {
-    if (firstDate === null) {
-      firstDate = d
-    }
-    else {
-      lastDate = d
-    }
-    if (typeof lookup[d.getMonth()] == 'undefined') {
-      lookup[d.getMonth()] = {}
-    }
-    var day = {
-      date: d.getDate()
-    , month: d.getMonth()
-    , otherMonth: d.getMonth() !== month
-    , tasks: null
-    }
-    if (d.getDate() == today.getDate() &&
-        d.getMonth() == today.getMonth() &&
-        d.getFullYear() == today.getFullYear()) {
-      day.today = true
-    }
-    lookup[day.month][day.date] = day
-    return day
-  })
-
-  var from = moment(firstDate).startOf('day').valueOf()
-    , to = moment(lastDate).endOf('day').valueOf()
   async.parallel(
     { users      : redis.users.choices.bind(null, {user: req.user, emptyChoice: 'Anyone'})
     , categories : redis.categories.choices.bind(null, {emptyChoice: 'All'})
@@ -372,21 +336,17 @@ app.get('/calendar/:year/:month', function(req, res, next) {
       if (err) return next(err)
       kwargs.data = req.query
       var filterForm = new forms.TaskFilterForm(kwargs)
-      var filters = (filterForm.isValid() ? filterForm.cleanedData : {})
-      redis.tasks.getByDateRange(from, to, filters, function(err, tasks) {
+        , filters = (filterForm.isValid() ? filterForm.cleanedData : {})
+      var cal = taskCalendar({
+        year: +req.params.year
+      , month: +req.params.month - 1
+      , filters: filters
+      })
+      redis.tasks.getByDateRange(cal.fromTime, cal.toTime, filters, function(err, tasks) {
         if (err) return next(err)
-        tasks.forEach(function(task) {
-          var day = lookup[task.due.month()][task.due.date()]
-          if (day.tasks === null) {
-            day.tasks = []
-          }
-          day.tasks.push(task)
-        })
+        cal.addTasks(tasks)
         res.render('calendar', {
-          displayMonth: displayMonth
-        , previousMonth: moment(displayMonth).subtract('months', 1).format('YYYY/M')
-        , nextMonth: moment(displayMonth).add('months', 1).format('YYYY/M')
-        , weeks: weeks
+          cal: cal
         , filterForm: filterForm
         })
       })
