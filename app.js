@@ -160,6 +160,19 @@ app.get('/', function(req, res, next) {
   })
 })
 
+var nonEmpty = (function() {
+  function hasProps(obj) {
+    for (var prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        return true
+      }
+    }
+    return false
+  }
+  return function(items) {
+    return items.filter(hasProps)
+  }
+})()
 app.get('/contacts', function(req, res, next) {
   redis.contacts.get({fetchRelated: redis.contacts.RELATED_PARTIAL}, function(err, contacts) {
     if (err) return next(err)
@@ -224,9 +237,9 @@ app.post('/contacts/add_person', function(req, res, next) {
   , jobTitle: personForm.cleanedData.jobTitle
   , backgroundInfo: ''
   , organisation: personForm.cleanedData.organisation
-  , emailAddresses: emailAddressFormSet.cleanedData()
-  , phoneNumbers: phoneNumberFormSet.cleanedData()
-  , addresses: addressFormSet.cleanedData()
+  , emailAddresses: nonEmpty(emailAddressFormSet.cleanedData())
+  , phoneNumbers: nonEmpty(phoneNumberFormSet.cleanedData())
+  , addresses: nonEmpty(addressFormSet.cleanedData())
   }
 
   redis.contacts.storePerson(person, function(err, person) {
@@ -304,9 +317,9 @@ app.post('/contacts/add_organisation', function(req, res, next) {
   var organisation = {
     name: organisationForm.cleanedData.name
   , backgroundInfo: ''
-  , phoneNumbers: phoneNumberFormSet.cleanedData()
-  , emailAddresses: emailAddressFormSet.cleanedData()
-  , addresses: addressFormSet.cleanedData()
+  , phoneNumbers: nonEmpty(phoneNumberFormSet.cleanedData())
+  , emailAddresses: nonEmpty(emailAddressFormSet.cleanedData())
+  , addresses: nonEmpty(addressFormSet.cleanedData())
   }
 
   redis.contacts.storeOrganisation(organisation, function(err, organisation) {
