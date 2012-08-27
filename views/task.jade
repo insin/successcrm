@@ -1,11 +1,30 @@
 extends layout
 
 block content
+  include mixins/forms
   detailPopulated = !!form.boundField('detail').value()
+  .module.actions
+    h2.module-legend Actions
+    .pull-left
+      if (task.isCompleted())
+        form.form-inline(action='/task/#{task.id}/repoen', method='POST')
+          button.btn.btn-success(type='submit')
+            i.icon-repeat.icon-white
+            |  Reopen
+      else
+        form.form-inline(action='/task/#{task.id}/complete', method='POST')
+          button.btn.btn-success(type='submit')
+            i.icon-ok.icon-white
+            |  Complete
+    .pull-right
+        form.form-inline(action='/task/#{task.id}/repoen', method='POST')
+          button.btn.btn-danger(type='submit')
+            i.icon-trash.icon-white
+            |  Delete
+    .clearfix
   .module
-    h2.module-legend New Task
-    include mixins/forms
-    form(action='/tasks/add', method='POST')
+    h2.module-legend Edit Task
+    form(action='/task/#{task.id}/edit', method='POST')
       +csrf
         != context.form.asHidden()
       .row
@@ -35,7 +54,7 @@ block content
         #moreDetail.span6
           +field(form, 'detail')(class='span6')
       .form-actions
-        button.btn.btn-primary(type='submit') Add Task
+        button.btn.btn-primary(type='submit') Save
         | 
         a.btn(href=context.next) Cancel
 

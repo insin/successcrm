@@ -19,6 +19,9 @@
 .module :first-child {
   margin-top: 0;
 }
+.module.actions .form-inline {
+  margin-bottom: 0;
+}
 
 /* Dashboard */
 

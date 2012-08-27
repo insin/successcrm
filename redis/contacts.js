@@ -192,9 +192,9 @@ function prepareForStorage(contact) {
   // Work on a shallow copy
   contact = object.extend({}, contact)
   // JSON encode contact arrays
-  contact.phoneNumbers = JSON.stringify(contact.phoneNumbers)
-  contact.emailAddresses = JSON.stringify(contact.emailAddresses)
-  contact.addresses = JSON.stringify(contact.addresses)
+  contact.phoneNumbers = JSON.stringify(contact.phoneNumbers || [])
+  contact.emailAddresses = JSON.stringify(contact.emailAddresses || [])
+  contact.addresses = JSON.stringify(contact.addresses || [])
   return contact
 }
 

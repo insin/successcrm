@@ -163,6 +163,8 @@ app.get('/', function(req, res, next) {
   })
 })
 
+// ---------------------------------------------------------------- Contacts ---
+
 var nonEmpty = (function() {
   function hasProps(obj) {
     for (var prop in obj) {
@@ -176,6 +178,7 @@ var nonEmpty = (function() {
     return items.filter(hasProps)
   }
 })()
+
 app.get('/contacts', function(req, res, next) {
   redis.contacts.get({fetchRelated: redis.contacts.RELATED_PARTIAL}, function(err, contacts) {
     if (err) return next(err)
@@ -338,6 +341,8 @@ app.post('/contacts/add_organisation', function(req, res, next) {
   })
 })
 
+// ---------------------------------------------------------------- Calendar ---
+
 app.get('/calendar', function(req, res, next) {
   var today = moment()
   res.redirect('/calendar/' + today.year() + '/' + (today.month() + 1))
@@ -370,6 +375,22 @@ app.get('/calendar/:year/:month', function(req, res, next) {
   )
 })
 
+// ------------------------------------------------------------------- Tasks ---
+
+/**
+ * Uses a TaskContextForm to provide Task forms with context information.
+ */
+function taskContext(form) {
+  var context = (form.isValid() ? form.cleanedData : {})
+  var contact = context.contact || null
+  var next = (contact ? '/contact/' + contact : context.next || '/tasks')
+  return {
+    form: form
+  , contact: contact
+  , next: next
+  }
+}
+
 app.get('/tasks', function(req, res, next) {
   async.parallel(
     { users      : redis.users.choices.bind(null, {user: req.user, emptyChoice: 'Anyone'})
@@ -399,12 +420,9 @@ app.get('/tasks/add', function(req, res, next) {
     }
   , function(err, kwargs) {
       if (err) return next(err)
-      var contextForm = new forms.TaskContextForm({data: req.query})
-        , context = contextForm.isValid() ? contextForm.cleanedData : {}
+      var context = taskContext(new forms.TaskContextForm({data: req.query}))
       var form = new forms.TaskForm(kwargs)
-      res.render('add_task', {
-        form: form, context: context, contextForm: contextForm
-      })
+      res.render('add_task', {form: form, context: context})
     }
   )
 })
@@ -417,27 +435,42 @@ app.post('/tasks/add', function(req, res, next) {
   , function(err, kwargs) {
       if (err) return next(err)
       kwargs.data = req.body
-      var contextForm = new forms.TaskContextForm({data: req.body})
-        , context = contextForm.isValid() ? contextForm.cleanedData : {}
+      var context = taskContext(new forms.TaskContextForm({data: req.body}))
       var form = new forms.TaskForm(kwargs)
       var redisplay = function() {
-        res.render('add_task', {
-          form: form, context: context, contextForm: contextForm
-        })
+        res.render('add_task', {form: form, context: context})
       }
       if (!form.isValid()) return redisplay()
-      var redirect = (context.contact
-                      ? '/contact/' + context.contact
-                      : context.next || '/tasks')
       if (context.contact) {
         form.cleanedData.contact = context.contact
       }
       redis.tasks.store(form.cleanedData, function(err, task) {
         if (err) return next(err)
-        res.redirect(redirect)
+        res.redirect(context.next)
       })
     }
   )
+})
+
+app.get('/task/:id', function(req, res, next) {
+  redis.tasks.byId(req.params.id, function(err, task) {
+    if (err) return next(err)
+    if (!task) return res.send(404)
+    async.parallel(
+      { categories : redis.categories.choices
+      , users      : redis.users.choices.bind(null, {user: req.user})
+      }
+    , function(err, kwargs) {
+        if (err) return next(err)
+        var context= taskContext(new forms.TaskContextForm({data: req.query}))
+        kwargs.initial = task
+        var form = new forms.TaskForm(kwargs)
+        res.render('task', {
+          task: task, form: form, context: context
+        })
+      }
+    )
+  })
 })
 
 app.get('/tasks/categories', function(req, res, next) {
@@ -468,6 +501,8 @@ app.post('/tasks/add_category', function(req, res, next) {
     })
   })
 })
+
+// ------------------------------------------------------------------- Admin ---
 
 /**
  * Asserts that the current user is an admin.

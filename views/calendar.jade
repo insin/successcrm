@@ -34,7 +34,7 @@ block tasks_content
                 .task
                   if (task.category)
                     span.label.label-inverse= task.category
-                  br
+                    br
                   if (task.time)
                     strong= $date(task.time, 'HH:mm')
                     | 

@@ -3,7 +3,7 @@ mixin taskTitle(task)
     if (task.category)
       span.label.label-inverse= task.category
       | 
-    a(href='/task/#{task.id}/edit')
+    a(href='/task/#{task.id}')
       = task.description
       block
 

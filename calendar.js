@@ -75,7 +75,7 @@ module.exports = function(kwargs) {
     // Functions
   , addTasks: function(tasks) {
       tasks.forEach(function(task) {
-        cellLookup[task.due.month()][task.due.date()].tasks.push(task)
+        cellLookup[task.due.getMonth()][task.due.getDate()].tasks.push(task)
       })
     }
   }

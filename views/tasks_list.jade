@@ -30,7 +30,8 @@ block tasks_content
                 if (task.category)
                   span.label.label-inverse= task.category.name
                   | 
-                strong= task.description
+                a(href='/task/#{task.id}')
+                  strong= task.description
                 if (task.contact)
                   |  for 
                   a(href='/contact/' + task.contact.id)= task.contact
