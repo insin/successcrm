@@ -14,9 +14,9 @@ mixin taskDetail(task)
 mixin taskTime(task)
   .task-time
     em
-      = task.due.format('ddd, MMM D')
+      = $date(task.due, 'ddd, MMM D')
       if (task.time)
-        | , #{task.time.format('H:mm')}
+        | , #{$date(task.time, 'H:mm')}
     block
 
 mixin ownTaskRow(task)

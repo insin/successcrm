@@ -36,7 +36,7 @@ block tasks_content
                     span.label.label-inverse= task.category
                   br
                   if (task.time)
-                    strong= task.time.format('HH:mm')
+                    strong= $date(task.time, 'HH:mm')
                     | 
                   = task.description
                   if (task.contact)

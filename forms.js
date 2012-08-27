@@ -5,6 +5,10 @@ var choices = require('./choices')
   , settings = require('./settings')
 
 var DATE_INPUT_FORMATS = settings.dateInputFormats
+  , TIME_INPUT_FORMATS = settings.timeInputFormats
+
+var dateWidget = forms.DateInput({format: DATE_INPUT_FORMATS[0]})
+  , timeWidget = forms.TimeInput({format: TIME_INPUT_FORMATS[0]})
 
 /**
  * Mixin for programatically adding errors to a form instance.
@@ -121,8 +125,8 @@ exports.CategoryForm = forms.Form.extend({
 exports.TaskForm = forms.Form.extend({
   description : forms.CharField({maxLength: 140})
 , detail      : forms.CharField({required: false, widget: forms.Textarea})
-, due         : forms.DateField({inputFormats: DATE_INPUT_FORMATS})
-, time        : forms.TimeField({required: false})
+, due         : forms.DateField({inputFormats: DATE_INPUT_FORMATS, widget: dateWidget})
+, time        : forms.TimeField({required: false, inputFormats: TIME_INPUT_FORMATS, widget: timeWidget})
 , category    : forms.ChoiceField({required: false})
 , assignedTo  : forms.ChoiceField()
 , contact     : forms.CharField({required: false})

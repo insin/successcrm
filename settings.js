@@ -2,8 +2,11 @@ module.exports = {
 // App
   appName: 'Success CRM'
 , dateInputFormats: [
-    '%d/%m/%Y' // dd/mm/yyyy
-  , '%d/%m/%y' // dd/mm/yy
+    '%d/%m/%Y' // 15/04/2013
+  , '%d/%m/%y' // 15/04/13
+  ]
+, timeInputFormats: [
+    '%H:%M' // 22:50
   ]
 , weekStartsMonday: true
 

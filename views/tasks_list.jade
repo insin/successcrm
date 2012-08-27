@@ -37,9 +37,9 @@ block tasks_content
               if (task.detail)
                 .more-detail= task.detail
             td
-              .task-date= task.due.format('DD MMMM YYYY')
+              .task-date= $date(task.due, 'DD MMMM YYYY')
               if (task.time)
                 .task-time
                   | at 
-                  = task.time.format('H:mm')
+                  = $date(task.time, 'H:mm')
               .task-assigned-to= task.assignedTo
