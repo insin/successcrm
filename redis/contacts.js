@@ -47,7 +47,7 @@ function storePerson(person, cb) {
     multi.rpush(PEOPLE, id)
     multi.exec(function(err) {
       if (err) return cb(err)
-      cb(null, id)
+      cb(null, asContact(person))
     })
   })
 }
@@ -63,7 +63,7 @@ function storeOrganisation(organisation, cb) {
     multi.rpush(ORGANISATIONS, id)
     multi.exec(function(err) {
       if (err) return cb(err)
-      cb(null, id)
+      cb(null, asContact(organisation))
     })
   })
 }
@@ -183,7 +183,6 @@ function asPerson(person) {
 function asOrganisation(organisation) {
   // Relationships with people are stored seprately - this Array is initialised
   // to hold details of any people who are fetched later.
-  this.people = []
   organisation.people = []
   organisation.__proto__ = organisationProto
   return organisation

@@ -229,9 +229,9 @@ app.post('/contacts/add_person', function(req, res, next) {
   , addresses: addressFormSet.cleanedData()
   }
 
-  redis.contacts.storePerson(person, function(err, id) {
+  redis.contacts.storePerson(person, function(err, person) {
     if (err) return next(err)
-    res.redirect('/contact/' + id)
+    res.redirect('/contact/' + person.id)
   })
 })
 
@@ -309,12 +309,12 @@ app.post('/contacts/add_organisation', function(req, res, next) {
   , addresses: addressFormSet.cleanedData()
   }
 
-  redis.contacts.storeOrganisation(organisation, function(err, id) {
+  redis.contacts.storeOrganisation(organisation, function(err, organisation) {
     if (err) return next(err)
-    var redirect = function() { res.redirect('/contact/' + id) }
+    var redirect = function() { res.redirect('/contact/' + organisation.id) }
     var peopleData = peopleFormSet.cleanedData()
     if (!peopleData.length) return redirect()
-    var addPerson = addPersonInline.bind(null, id)
+    var addPerson = addPersonInline.bind(null, organisation.id)
     async.forEachSeries(peopleData, addPerson, function(err) {
       if (err) return next(err)
       redirect()
