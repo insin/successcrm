@@ -10,7 +10,7 @@
   , "express": "~3.0.0rc3"
   , "newforms": "~0.4.2"
   , "isomorph": "~0.2.0"
-  , "commander": "~1.0.1"
+  , "commander": "~1.0.2"
   , "moment": "~1.7.0"
   , "connect-redis": "~1.4.1"
   , "redis": "~0.7.2"
