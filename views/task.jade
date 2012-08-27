@@ -6,21 +6,24 @@ block content
   .module.actions
     h2.module-legend Actions
     .pull-left
-      if (task.isCompleted())
-        form.form-inline(action='/task/#{task.id}/repoen', method='POST')
-          button.btn.btn-success(type='submit')
-            i.icon-repeat.icon-white
-            |  Reopen
-      else
+      if (!task.isCompleted())
         form.form-inline(action='/task/#{task.id}/complete', method='POST')
-          button.btn.btn-success(type='submit')
-            i.icon-ok.icon-white
-            |  Complete
+          +csrf
+            button.btn.btn-success(type='submit')
+              i.icon-ok.icon-white
+              |  Complete
+      else
+        form.form-inline(action='/task/#{task.id}/reopen', method='POST')
+          +csrf
+            button.btn.btn-success(type='submit')
+              i.icon-repeat.icon-white
+              |  Reopen
     .pull-right
-        form.form-inline(action='/task/#{task.id}/repoen', method='POST')
-          button.btn.btn-danger(type='submit')
-            i.icon-trash.icon-white
-            |  Delete
+        form.form-inline(action='/task/#{task.id}/delete', method='POST')
+          +csrf
+            button.btn.btn-danger(type='submit')
+              i.icon-trash.icon-white
+              |  Delete
     .clearfix
   .module
     h2.module-legend Edit Task

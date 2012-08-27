@@ -9,6 +9,7 @@ var $r = require('./connection')
 
 module.exports = {
   store: store
+, del: del
 , byId: byId
 , get: get
 , getByDateRange: getByDateRange
@@ -83,6 +84,27 @@ function store(task, cb) {
       cb(null, asTask(redisTask))
     })
   })
+}
+
+// ------------------------------------------------------------------ Delete ---
+
+/**
+ * Queues commands to remove from sorted sets for the given task.
+ */
+function removeFromSortedSets(task, multi) {
+  sortedSetKeys(task).forEach(function(key) {
+    multi.zrem(key, task.id)
+  })
+}
+
+/**
+ * Deletes a task.
+ */
+function del(task, cb) {
+  var multi = $r.multi()
+  removeFromSortedSets(task, multi)
+  multi.del(TASK + task.id)
+  multi.exec(cb)
 }
 
 // --------------------------------------------------------------------- Get ---

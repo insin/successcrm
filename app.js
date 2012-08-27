@@ -477,6 +477,17 @@ app.get('/task/:id', function(req, res, next) {
   })
 })
 
+app.post('/task/:id/delete', function(req, res, next) {
+  redis.tasks.byId(req.params.id, function(err, task) {
+    if (err) return next(err)
+    if (!task) return res.send(404)
+    redis.tasks.del(task, function(err) {
+      if (err) return next(err)
+      res.redirect(req.query.next || '/tasks')
+    })
+  })
+})
+
 app.get('/tasks/categories', function(req, res, next) {
   redis.categories.get(function(err, categories) {
     if (err) return next(err)
