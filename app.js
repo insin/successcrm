@@ -463,6 +463,10 @@ app.get('/task/:id', function(req, res, next) {
     , function(err, kwargs) {
         if (err) return next(err)
         var context= taskContext(new forms.TaskContextForm({data: req.query}))
+        // TODO Make newforms async model aware
+        task.category = task.category ? task.category.id : task.category
+        task.assignedTo = task.assignedTo.id
+        task.contact = task.contact ? task.contact.id : task.contact
         kwargs.initial = task
         var form = new forms.TaskForm(kwargs)
         res.render('task', {
