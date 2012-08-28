@@ -1,9 +1,12 @@
-mixin taskTitle(task)
+mixin taskTitle(task, context)
   .task-title
     if (task.category)
       span.label.label-inverse= task.category
       | 
-    a(href='/task/#{task.id}')
+    href = '/task/' + task.id
+    if (context)
+      href = href + '?' + context
+    a(href=href)
       = task.description
       block
 
@@ -36,7 +39,7 @@ mixin contactTaskRow(task)
     td
       input(type='checkbox', name='task', value=task.id)
     td
-      +taskTitle(task)
+      +taskTitle(task, 'context-contact=' + task.contact.id)
         |  (#{task.assignedTo})
       +taskDetail(task)
       +taskTime(task)

@@ -131,6 +131,7 @@ exports.TaskForm = forms.Form.extend({
 , assignedTo  : forms.ChoiceField()
 , contact     : forms.CharField({required: false})
 
+, __mixin__: AddErrors
 , constructor: function(kwargs) {
     kwargs = object.extend({categories: [], users: []}, kwargs)
     forms.Form.call(this, kwargs)

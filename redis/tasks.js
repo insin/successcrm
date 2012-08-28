@@ -9,6 +9,7 @@ var $r = require('./connection')
 
 module.exports = {
   store: store
+, update: update
 , del: del
 , byId: byId
 , get: get
@@ -82,6 +83,51 @@ function store(task, cb) {
     multi.exec(function(err) {
       if (err) return cb(err)
       cb(null, asTask(redisTask))
+    })
+  })
+}
+
+// ------------------------------------------------------------------ Update ---
+
+/**
+ * Queues commands to add and remove from sorted sets as necessary as the
+ * result of having applied the given changes to a task.
+ */
+function updateSortedSets(task, changes, priorKeys, priorScore, multi) {
+  // Recalculate keys and score after changes
+  var keys = sortedSetKeys(task)
+    , score = sortedSetScore(task)
+  // Remove from sets which are no longer applicable
+  var obsoleteKeys = _.difference(priorKeys, keys)
+  obsoleteKeys.forEach(function(key) { multi.zrem(key, task.id) })
+  // If the score has changed, all sorted sets need to be added to again,
+  // otherwise only add to keys for new sets.
+  var addKeys = (score !== priorScore ? keys : _.difference(keys, priorKeys))
+  addKeys.forEach(function(key) { multi.zadd(key, score, task.id) })
+}
+
+/**
+ * Updates a task by applying the given changes to it.
+ */
+function update(task, changes, cb) {
+  // Get sorted set keys and score prior to applying changes
+  var priorKeys = sortedSetKeys(task)
+    , priorScore = sortedSetScore(task)
+  // Apply changes to the task
+  _.extend(task, changes)
+  // Store updates to changed fields
+  var redisTask = toRedis(task)
+  $r.hmset(TASK + task.id, _.pick(redisTask, _.keys(changes)), function(err) {
+    if (err) return cb(err)
+    var task = fromRedis(redisTask)
+      , multi = $r.multi()
+    // Update sorted sets according to the applied changes - doing it here is a
+    // hack because the logic to plug the time into the due date happens on the
+    // way out of Redis. Let it be a warning from history...
+    updateSortedSets(task, changes, priorKeys, priorScore, multi)
+    multi.exec(function(err) {
+      if (err) return cb(err)
+      cb(null, task)
     })
   })
 }

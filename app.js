@@ -6,7 +6,7 @@ var express = require('express')
   , async = require('async')
   , moment = require('moment')
   , allValid = require('newforms').allValid
-  , extend = require('isomorph/object').extend
+  , _ = require('underscore')
 
 var settings = require('./settings')
   , forms = require('./forms')
@@ -24,7 +24,7 @@ function loadUser(req, res, next) {
   if (req.session.userId) {
     redis.users.byId(req.session.userId, function(err, user) {
       if (err) return next(err)
-      req.user = extend(user, {
+      req.user = _.extend(user, {
         isAuthenticated: true
       , isAnonymous: false
       })
@@ -452,6 +452,13 @@ app.post('/tasks/add', function(req, res, next) {
   )
 })
 
+// TODO Make newforms async model aware
+function replaceTaskRelIds(task) {
+  task.category = task.category ? task.category.id : task.category
+  task.assignedTo = task.assignedTo.id
+  task.contact = task.contact ? task.contact.id : task.contact
+}
+
 app.get('/task/:id', function(req, res, next) {
   redis.tasks.byId(req.params.id, function(err, task) {
     if (err) return next(err)
@@ -463,14 +470,52 @@ app.get('/task/:id', function(req, res, next) {
     , function(err, kwargs) {
         if (err) return next(err)
         var context= taskContext(new forms.TaskContextForm({data: req.query}))
-        // TODO Make newforms async model aware
-        task.category = task.category ? task.category.id : task.category
-        task.assignedTo = task.assignedTo.id
-        task.contact = task.contact ? task.contact.id : task.contact
+        // HAX
+        replaceTaskRelIds(task)
         kwargs.initial = task
         var form = new forms.TaskForm(kwargs)
         res.render('task', {
           task: task, form: form, context: context
+        })
+      }
+    )
+  })
+})
+
+app.post('/task/:id', function(req, res, next) {
+  redis.tasks.byId(req.params.id, function(err, task) {
+    if (err) return next(err)
+    if (!task) return res.send(404)
+    if (task.isCompleted()) return res.send(403, "Can't edit a completed Task.")
+    async.parallel(
+      { categories : redis.categories.choices
+      , users      : redis.users.choices.bind(null, {user: req.user})
+      }
+    , function(err, kwargs) {
+        if (err) return next(err)
+        var context = taskContext(new forms.TaskContextForm({data: req.body}))
+        // HAX
+        replaceTaskRelIds(task)
+        kwargs.initial = task
+        kwargs.data = req.body
+        if (context.contact) {
+          kwargs.data.contact = context.contact
+        }
+        var form = new forms.TaskForm(kwargs)
+        var redisplay = function() {
+          res.render('task', {task: task, form: form, context: context})
+        }
+        if (!form.isValid()) return redisplay()
+        var changedFields = form.changedData()
+        if (!changedFields.length) {
+          form.addFormError('There were no changes to be saved.')
+          return redisplay()
+        }
+        var changedData = _.pick(form.cleanedData, changedFields)
+        console.log(changedData)
+        redis.tasks.update(task, changedData, function(err, task) {
+          if (err) return next(err)
+          res.redirect(context.next)
         })
       }
     )

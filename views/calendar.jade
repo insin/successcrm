@@ -33,13 +33,20 @@ block tasks_content
               for task in cell.tasks
                 .task
                   if (task.category)
-                    span.label.label-inverse= task.category
-                    br
-                  if (task.time)
-                    strong= $date(task.time, 'HH:mm')
-                    | 
-                  = task.description
-                  if (task.contact)
-                    br
-                    | for 
-                    a(href='/contact/' + task.contact.id)= task.contact
+                    .category
+                      span.pull-left.label.label-inverse= task.category
+                      a.pull-right(href='/task/#{task.id}?context-next=#{cal.currentURL}')
+                        i.icon-pencil
+                      .clearfix
+                  .body
+                    if (!task.category)
+                      a.pull-right(href='/task/#{task.id}?context-next=#{cal.currentURL}')
+                        i.icon-pencil
+                    if (task.time)
+                      strong= $date(task.time, 'HH:mm')
+                      | 
+                    = task.description
+                    if (task.contact)
+                      br
+                      | for 
+                      a(href='/contact/' + task.contact.id)= task.contact

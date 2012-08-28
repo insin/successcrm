@@ -27,7 +27,8 @@ block content
     .clearfix
   .module
     h2.module-legend Edit Task
-    form(action='/task/#{task.id}/edit', method='POST')
+    +formErrors(form)
+    form(action='/task/#{task.id}', method='POST')
       +csrf
         != context.form.asHidden()
       .row
@@ -57,8 +58,9 @@ block content
         #moreDetail.span6
           +field(form, 'detail')(class='span6')
       .form-actions
-        button.btn.btn-primary(type='submit') Save
-        | 
+        if (!task.isCompleted())
+          button.btn.btn-primary(type='submit') Save
+          | 
         a.btn(href=context.next) Cancel
 
 append scripts
