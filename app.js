@@ -539,6 +539,18 @@ app.post('/task/:id/complete', function(req, res, next) {
   })
 })
 
+app.post('/task/:id/reopen', function(req, res, next) {
+  redis.tasks.byId(req.params.id, function(err, task) {
+    if (err) return next(err)
+    if (!task) return res.send(404)
+    if (!task.isCompleted()) return res.send(403, 'Task is not completed.')
+    redis.tasks.reopen(task, function(err) {
+      if (err) return next(err)
+      res.redirect(req.query.next || '/task/' + task.id)
+    })
+  })
+})
+
 app.post('/task/:id/delete', function(req, res, next) {
   redis.tasks.byId(req.params.id, function(err, task) {
     if (err) return next(err)

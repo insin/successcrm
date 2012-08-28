@@ -12,6 +12,7 @@ module.exports = {
 , update: update
 , del: del
 , complete: complete
+, reopen: reopen
 , byId: byId
 , get: get
 , getByDateRange: getByDateRange
@@ -166,6 +167,16 @@ function complete(task, completedAt, completedBy, cb) {
   var multi = $r.multi()
   multi.hmset(TASK + task.id, 'completedAt', completedAt.valueOf(), 'completedBy', completedBy.id)
   removeFromSortedSets(task, multi)
+  multi.exec(cb)
+}
+
+/**
+ * Reopens a task.
+ */
+function reopen(task, cb) {
+  var multi = $r.multi()
+  multi.hdel(TASK + task.id, 'completedAt', 'completedBy')
+  addToSortedSets(task, multi)
   multi.exec(cb)
 }
 
