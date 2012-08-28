@@ -11,6 +11,7 @@ module.exports = {
   store: store
 , update: update
 , del: del
+, complete: complete
 , byId: byId
 , get: get
 , getByDateRange: getByDateRange
@@ -150,6 +151,21 @@ function del(task, cb) {
   var multi = $r.multi()
   removeFromSortedSets(task, multi)
   multi.del(TASK + task.id)
+  multi.exec(cb)
+}
+
+// ---------------------------------------------------------------- Misc Ops ---
+
+/**
+ * Completes a task.
+ * @param task the task to be completed.
+ * @param completedAt the date the task was completed at.
+ * @param completedBy the user completing the task.
+ */
+function complete(task, completedAt, completedBy, cb) {
+  var multi = $r.multi()
+  multi.hmset(TASK + task.id, 'completedAt', completedAt.valueOf(), 'completedBy', completedBy.id)
+  removeFromSortedSets(task, multi)
   multi.exec(cb)
 }
 

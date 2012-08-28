@@ -26,7 +26,16 @@ block content
               |  Delete
     .clearfix
   .module
-    h2.module-legend Edit Task
+    taskTitle = (task.isCompleted() ? 'Completed Task' : 'Task')
+    h2.module-legend= taskTitle
+    if (task.isCompleted())
+      .alert.alert-info
+        | Completed 
+        strong= $timeAgo(task.completedAt)
+        |  (
+        em= $date(task.completedAt, 'ddd MMM Do, YYYY @ hh:mm')
+        |  ) by 
+        strong #{task.completedBy}
     +formErrors(form)
     form(action='/task/#{task.id}', method='POST')
       +csrf

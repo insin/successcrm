@@ -61,6 +61,9 @@ app.configure(function() {
   app.locals.$date = function(date, format) {
     return moment(date).format(format)
   }
+  app.locals.$timeAgo = function(date) {
+    return moment(date).fromNow()
+  }
   // Middleware
   app.use(express.favicon())
   app.use(express.static(path.join(__dirname, 'static')))
@@ -519,6 +522,20 @@ app.post('/task/:id', function(req, res, next) {
         })
       }
     )
+  })
+})
+
+app.post('/task/:id/complete', function(req, res, next) {
+  redis.tasks.byId(req.params.id, function(err, task) {
+    if (err) return next(err)
+    if (!task) return res.send(404)
+    if (task.isCompleted()) return res.send(403, 'Task is already completed.')
+    var completedAt = new Date()
+    redis.tasks.complete(task, completedAt, req.user, function(err) {
+      if (err) return next(err)
+      // TODO Create a task completion update
+      return res.redirect('/task/' + task.id)
+    })
   })
 })
 
