@@ -1,5 +1,5 @@
-var  jade = require('jade')
-   , moment = require('moment')
+var jade = require('jade')
+  , moment = require('moment')
 
 var escape = jade.runtime.escape
 

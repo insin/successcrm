@@ -47,7 +47,7 @@ function sortedSetKeys(task) {
   }
   // Tasks don't have to be for a contact
   if (contact) {
-    keys.push(CONTACT_TASKS + task.contact)
+    keys.push(CONTACT_TASKS + contact)
   }
   return keys
 }
