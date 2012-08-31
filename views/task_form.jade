@@ -3,41 +3,14 @@ extends layout
 block content
   include mixins/forms
   detailPopulated = !!form.boundField('detail').value()
-  .module.actions
-    h2.module-legend Actions
-    .pull-left
-      if (!task.isCompleted())
-        form.form-inline(action='/task/#{task.id}/complete', method='POST')
-          +csrf
-            button.btn.btn-success(type='submit')
-              i.icon-ok.icon-white
-              |  Complete
-      else
-        form.form-inline(action='/task/#{task.id}/reopen', method='POST')
-          +csrf
-            button.btn.btn-success(type='submit')
-              i.icon-repeat.icon-white
-              |  Reopen
-    .pull-right
-        form.form-inline(action='/task/#{task.id}/delete', method='POST')
-          +csrf
-            button.btn.btn-danger(type='submit')
-              i.icon-trash.icon-white
-              |  Delete
-    .clearfix
+  block top
   .module
-    taskTitle = (task.isCompleted() ? 'Completed Task' : 'Task')
-    h2.module-legend= taskTitle
-    if (task.isCompleted())
-      .alert.alert-info
-        | Completed 
-        strong= $timeAgo(task.completedAt)
-        |  (
-        em= $date(task.completedAt, 'ddd MMM Do, YYYY @ hh:mm')
-        |  ) by 
-        strong #{task.completedBy}
-    +formErrors(form)
-    form(action='/task/#{task.id}', method='POST')
+    block form_vars
+      formTitle = ''
+      formAction = ''
+    h2.module-legend= formTitle
+    block form_header
+    form(action=formAction, method='POST')
       +csrf
         != context.form.asHidden()
       .row
@@ -67,11 +40,8 @@ block content
         #moreDetail.span6
           +field(form, 'detail')(class='span6')
       .form-actions
-        if (!task.isCompleted())
-          button.btn.btn-primary(type='submit') Save
-          | 
-        a.btn(href=context.next) Cancel
-
+        block form_actions
+          a.btn(href=context.next) Cancel
 append scripts
   if (!detailPopulated)
     script

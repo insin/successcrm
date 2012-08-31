@@ -472,7 +472,7 @@ app.get('/task/:id', function(req, res, next) {
         replaceTaskRelIds(task)
         kwargs.initial = task
         var form = new forms.TaskForm(kwargs)
-        res.render('task', {
+        res.render('edit_task', {
           task: task, form: form, context: context
         })
       }
@@ -501,7 +501,7 @@ app.post('/task/:id', function(req, res, next) {
         }
         var form = new forms.TaskForm(kwargs)
         var redisplay = function() {
-          res.render('task', {task: task, form: form, context: context})
+          res.render('edit_task', {task: task, form: form, context: context})
         }
         if (!form.isValid()) return redisplay()
         var changedFields = form.changedData()

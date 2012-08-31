@@ -1,0 +1,45 @@
+extends task_form
+
+block top
+  .module.actions
+    h2.module-legend Actions
+    .pull-left
+      if (!task.isCompleted())
+        form.form-inline(action='/task/#{task.id}/complete', method='POST')
+          +csrf
+            button.btn.btn-success(type='submit')
+              i.icon-ok.icon-white
+              |  Complete
+      else
+        form.form-inline(action='/task/#{task.id}/reopen', method='POST')
+          +csrf
+            button.btn.btn-success(type='submit')
+              i.icon-repeat.icon-white
+              |  Reopen
+    .pull-right
+        form.form-inline(action='/task/#{task.id}/delete', method='POST')
+          +csrf
+            button.btn.btn-danger(type='submit')
+              i.icon-trash.icon-white
+              |  Delete
+    .clearfix
+
+block form_vars
+  formTitle = (task.isCompleted() ? 'Completed Task' : 'Task')
+  formAction = '/task/#{task.id}'
+
+block form_header
+  if (task.isCompleted())
+    .alert.alert-info
+      | Completed 
+      strong= $timeAgo(task.completedAt)
+      |  (
+      em= $date(task.completedAt, 'ddd MMM Do, YYYY @ hh:mm')
+      |  ) by 
+      strong #{task.completedBy}
+  +formErrors(form)
+
+prepend form_actions
+  if (!task.isCompleted())
+    button.btn.btn-primary(type='submit') Save
+    | 

@@ -1,49 +1,9 @@
-extends layout
+extends task_form
 
-block content
-  detailPopulated = !!form.boundField('detail').value()
-  .module
-    h2.module-legend New Task
-    include mixins/forms
-    form(action='/tasks/add', method='POST')
-      +csrf
-        != context.form.asHidden()
-      .row
-        .span6
-          .row
-            .span6
-              +field(form, 'description')(class='span6')
-                if (!detailPopulated)
-                  a.pull-right(href='#more', id='moreDetailLink') add more detail
-          .row
-            .span3
-              +field(form, 'due')(class='span3', placeholder='dd/mm/yyyy')
-            .span3
-              // TODO Replace with hour / minute selects
-              +field(form, 'time')(class='span3', placeholder='hh:mm')
-          .row
-            .span3
-              +field(form, 'category')(class='span3')
-          .row
-            .span3
-              +field(form, 'assignedTo')(class='span3')
-          if (!context.contact)
-            .row
-              .span6
-                // TODO Lookup contacts by name when typing in this field
-                +field(form, 'contact')(class='span6')
-        #moreDetail.span6
-          +field(form, 'detail')(class='span6')
-      .form-actions
-        button.btn.btn-primary(type='submit') Add Task
-        | 
-        a.btn(href=context.next) Cancel
+block form_vars
+  formTitle = 'New Task'
+  formAction = '/tasks/add'
 
-append scripts
-  if (!detailPopulated)
-    script
-      $('#moreDetail').hide()
-      $('#moreDetailLink').click(function() {
-        $(this).remove()
-        $('#moreDetail').show(500)
-      })
+prepend form_actions
+  button.btn.btn-primary(type='submit') Add Task
+  | 
