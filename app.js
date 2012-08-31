@@ -12,6 +12,7 @@ var settings = require('./settings')
   , forms = require('./forms')
   , redis = require('./redis')
   , taskCalendar = require('./calendar')
+  , helpers = require('./helpers')
 
 var app = express()
 
@@ -58,7 +59,7 @@ app.configure(function() {
   app.locals.pretty = true
   app.locals.APP_NAME = settings.appName
   app.locals.APP_VERSION = require('./package.json').version
-  _.extend(app.locals, require('./helpers'))
+  _.extend(app.locals, helpers)
   // Middleware
   app.use(express.favicon())
   app.use(express.static(path.join(__dirname, 'static')))
@@ -340,6 +341,19 @@ app.post('/contacts/add_organisation', function(req, res, next) {
     async.forEachSeries(peopleData, addPerson, function(err) {
       if (err) return next(err)
       redirect()
+    })
+  })
+})
+
+app.post('/contact/:id/backgroundinfo', function(req, res, next) {
+  redis.contacts.byId(req.params.id, function(err, contact) {
+    if (err) return next(err)
+    if (!contact) return res.send(404)
+    var backgroundInfo = req.body.backgroundInfo
+    redis.contacts.saveBackgroundInfo(contact, backgroundInfo, function(err) {
+      if (err) return next(err)
+      if (req.xhr) return res.send(helpers.$linebreaksbr(backgroundInfo))
+      res.redirect('/contact/' + contact.id)
     })
   })
 })

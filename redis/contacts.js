@@ -13,6 +13,7 @@ module.exports = {
   byId: byId
 , storePerson: storePerson
 , storeOrganisation: storeOrganisation
+, saveBackgroundInfo: saveBackgroundInfo
 , get: get
 , RELATED_FULL: RELATED_FULL
 , RELATED_PARTIAL: RELATED_PARTIAL
@@ -68,6 +69,10 @@ function storeOrganisation(organisation, cb) {
       cb(null, asContact(organisation))
     })
   })
+}
+
+function saveBackgroundInfo(contact, backgroundInfo, cb) {
+  $r.hset(CONTACT + contact.id, 'backgroundInfo', backgroundInfo, cb)
 }
 
 function byId(id, options, cb) {

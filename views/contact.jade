@@ -2,6 +2,7 @@ extends layout
 
 block content
   include mixins/contacts
+  include mixins/forms
   include mixins/tasks
 
   block contact_type
@@ -28,9 +29,9 @@ block content
 
       .module
         h2.module-legend About
-        p= contact.backgroundInfo
+        p#backgroundInfo!= $linebreaksbr(contact.backgroundInfo)
         p
-          a(href='#') <i class="icon-pencil"></i> Edit background information
+          a(href='#editBackgroundInfo', role='button', data-toggle='modal') <i class="icon-pencil"></i> Edit background information
 
       block additional_info
 
@@ -68,3 +69,46 @@ block content
               if (update.relatedTo && update.relatedTo.id != contact.id)
                 p: a(href='/contact/' + update.relatedTo.id)= update.relatedTo.name
               p= update.note
+
+  #editBackgroundInfo.modal.hide.fade
+    form(name='backgroundInfoForm', action='/contact/#{contact.id}/backgroundinfo', method='POST')
+      +csrf
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        h3 Background information
+      .modal-body
+        .row-fluid
+          textarea.span12(name='backgroundInfo', rows=10)= contact.backgroundInfo
+      .modal-footer
+        button.btn(data-dismiss='modal', aria-hidden='true') Close
+        button#saveBackgroundInfo.btn.btn-primary(type='submit') Save changes
+
+append scripts
+  script
+    // Background info modal
+    void function() {
+      var backgroundInfoCache = ''
+      var $modal = $('#editBackgroundInfo')
+        , form = document.forms.backgroundInfoForm
+        , backgroundInfo = form.elements.backgroundInfo
+      // Restore the original info if the modal is closed without being saved
+      $modal.on('show', function() { backgroundInfoCache = backgroundInfo.value })
+      $modal.on('hide', function() { backgroundInfo.value = backgroundInfoCache })
+      // Hijack form submission to submit via XHR instead
+      $('#saveBackgroundInfo').click(function(event) {
+        event.preventDefault()
+        backgroundInfoCache = backgroundInfo.value
+        $.ajax(form.action, {
+          type: 'POST'
+        , data: $(form).serialize()
+        , success: function(data) {
+            $('#backgroundInfo').html(data)
+            $modal.modal('hide')
+          }
+        , error: function(xhr, status, error) {
+            // TODO Niceify
+            alert(error + ' ' + status)
+          }
+        })
+      })
+    }()
