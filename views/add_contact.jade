@@ -6,7 +6,7 @@ block content
   block contact_type
     type = ''
 
-  form(action='/contacts/add_#{type}', method='POST')
+  form(name='addContactForm', action='/contacts/add_#{type}', method='POST')
     +csrf
     block management_forms
       != phoneNumberFormSet.managementForm().asP()
@@ -19,34 +19,34 @@ block content
       h2.module-legend Contact Details
 
       label: strong Phone Numbers
-      for form in phoneNumberFormSet.forms
-        .row
-          .span5: +widget(form, 'number')(class='span5')
-          .span2: +widget(form, 'type')(class='span2')
+      div.empty-form(id='#{phoneNumberFormSet.prefix}EmptyForm')
+        emptyForm = phoneNumberFormSet.emptyForm()
+        +phoneNumberForm(emptyForm)
+      div(id='#{phoneNumberFormSet.prefix}Forms')
+        for form in phoneNumberFormSet.forms
+          +phoneNumberForm(form)
       p
-        a(href='#') <i class="icon-plus"></i> add another phone number
+        a(id='#{phoneNumberFormSet.prefix}AddAnother') <i class="icon-plus"></i> add another phone number
 
       label: strong Email Addresses
-      for form in emailAddressFormSet.forms
-        .row
-          .span5: +widget(form, 'email')(class='span5')
-          .span2: +widget(form, 'type')(class='span2')
+      div.empty-form(id='#{emailAddressFormSet.prefix}EmptyForm')
+        emptyForm = emailAddressFormSet.emptyForm()
+        +emailAddressForm(emptyForm)
+      div(id='#{emailAddressFormSet.prefix}Forms')
+        for form in emailAddressFormSet.forms
+          +emailAddressForm(form)
       p
-        a(href='#') <i class="icon-plus"></i> add another email address
+        a(id='#{emailAddressFormSet.prefix}AddAnother') <i class="icon-plus"></i> add another email address
 
       label: strong Addresses
-      for form in addressFormSet.forms
-        .controls.controls-row
-          +widget(form, 'address')(class='span5')
-          +widget(form, 'type')(class='span2')
-        .controls.controls-row
-          +widget(form, 'city')(class='span3')
-          +widget(form, 'county')(class='span2')
-          +widget(form, 'postCode')(class='span2')
-        .controls
-          +widget(form, 'country')(class='span5')
+      div.empty-form(id='#{addressFormSet.prefix}EmptyForm')
+        emptyForm = addressFormSet.emptyForm()
+        +addressForm(emptyForm)
+      div(id='#{addressFormSet.prefix}Forms')
+        for form in addressFormSet.forms
+          +addressForm(form)
       p
-        a(href='#') <i class="icon-plus"></i> add another address
+        a(id='#{addressFormSet.prefix}AddAnother') <i class="icon-plus"></i> add another address
 
     .form-actions
       button.btn.btn-primary(type='submit') Save
@@ -54,7 +54,14 @@ block content
       a.btn(href='/contacts') Cancel
 
 append scripts
+  script(src='/js/forms.js')
   script
+    // Set up 'add another' controls for common contact details
+    var form = document.forms.addContactForm
+    addAnother('#{phoneNumberFormSet.prefix}', form)
+    addAnother('#{emailAddressFormSet.prefix}', form)
+    addAnother('#{addressFormSet.prefix}', form)
+    // Initialise popovers for inline fields with validation errors
     $('*[rel=popover]').popover({
       trigger: 'focus'
     , placement: 'bottom'

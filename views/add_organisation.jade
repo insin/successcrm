@@ -13,6 +13,10 @@ block contact_fields
 
   .module
     h2.module-legend People
+    table.empty-form
+      tbody(id='#{peopleFormSet.prefix}EmptyForm')
+        emptyForm = peopleFormSet.emptyForm()
+        +inlinePersonForm(emptyForm)
     table.table.table-condensed
       thead
         tr
@@ -22,14 +26,13 @@ block contact_fields
           th Email
           th Mobile Phone
           th Direct Phone
-      tbody
+      tbody(id='#{peopleFormSet.prefix}Forms')
         for form in peopleFormSet.forms
-          tr
-            td: +widget(form, 'firstName')(class='input-medium')
-            td: +widget(form, 'lastName')(class='input-medium')
-            td: +widget(form, 'jobTitle')(class='input-medium')
-            td: +widget(form, 'email')(class='input-medium')
-            td: +widget(form, 'mobilePhone')(class='input-medium')
-            td: +widget(form, 'directPhone')(class='input-medium')
+          +inlinePersonForm(form)
     p
-      a(href='#') <i class="icon-plus"></i> add another person
+      a(id='#{peopleFormSet.prefix}AddAnother') <i class="icon-plus"></i> add another person
+
+append scripts
+  script
+    // Set up 'add another' controls for organisation contact details
+    addAnother('#{peopleFormSet.prefix}', form)

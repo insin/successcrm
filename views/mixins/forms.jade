@@ -28,3 +28,33 @@ mixin widget(form, name)
     - attributes['rel'] = 'popover'
     - attributes['data-content'] = errors.join('; ')
   != field.asWidget({attrs: attributes})
+
+mixin inlinePersonForm(form)
+  tr
+    td: +widget(form, 'firstName')(class='input-medium')
+    td: +widget(form, 'lastName')(class='input-medium')
+    td: +widget(form, 'jobTitle')(class='input-medium')
+    td: +widget(form, 'email')(class='input-medium')
+    td: +widget(form, 'mobilePhone')(class='input-medium')
+    td: +widget(form, 'directPhone')(class='input-medium')
+
+mixin phoneNumberForm(form)
+  .row
+    .span5: +widget(form, 'number')(class='span5')
+    .span2: +widget(form, 'type')(class='span2')
+
+mixin emailAddressForm(form)
+  .row
+    .span5: +widget(form, 'email')(class='span5')
+    .span2: +widget(form, 'type')(class='span2')
+
+mixin addressForm(form)
+  .controls.controls-row
+    +widget(form, 'address')(class='span5')
+    +widget(form, 'type')(class='span2')
+  .controls.controls-row
+    +widget(form, 'city')(class='span3')
+    +widget(form, 'county')(class='span2')
+    +widget(form, 'postCode')(class='span2')
+  .controls
+    +widget(form, 'country')(class='span5')

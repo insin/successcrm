@@ -23,6 +23,10 @@
   margin-bottom: 0;
 }
 
+.empty-form {
+  display: none;
+}
+
 /* Dashboard */
 
 .dashboard-tasks h2,
