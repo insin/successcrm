@@ -3,12 +3,16 @@
 var program = require('commander')
   , async = require('async')
 
+function verbatim(cb) { return function(input) { cb(null, input) } }
+function ok(cb) { return function(ok) { cb(null, !!ok) } }
+
 program
  .version(require('../package.json').version)
+ .usage('[command] [options]')
 
 program
  .command('createuser')
- .description('create a user')
+ .description('    create a new user')
  .action(function() {
     var redis = require('../redis')
     async.series({
@@ -37,24 +41,16 @@ program
         )
       }
     , firstName: function(cb) {
-        program.prompt('first name: ', function(input) {
-          cb(null, input)
-        })
+        program.prompt('first name: ', verbatim(cb))
       }
     , lastName: function(cb) {
-        program.prompt('last name: ', function(input) {
-          cb(null, input)
-        })
+        program.prompt('last name: ', verbatim(cb))
       }
     , email: function(cb) {
-        program.prompt('email address: ', function(input) {
-          cb(null, input)
-        })
+        program.prompt('email address: ', verbatim(cb))
       }
     , isAdmin: function(cb) {
-        program.confirm('admin privileges? ', function(ok) {
-          cb(null, !!ok)
-        })
+        program.confirm('admin privileges? ', ok(cb))
       }
     },
     function(err, user) {
@@ -62,8 +58,12 @@ program
         if (err) throw err
         console.log('User "%s" successfully created.', user.username)
         console.log('Generated password is "%s".', password)
+        process.exit(0)
       })
     })
   })
 
 program.parse(process.argv)
+if (!program.args.length) {
+  console.log(program.helpInformation())
+}
