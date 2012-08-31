@@ -1,6 +1,14 @@
 var object = require('isomorph/object')
 
+var contacts = require('./redis/contacts')
+
 var EMPTY_CHOICE = exports.EMPTY_CHOICE = ['', '']
+
+exports.CONTACT_TYPE_CHOICES = [
+  ['', 'All People & Organisations']
+, [contacts.TYPE_PERSON, 'All People']
+, [contacts.TYPE_ORGANISATION, 'All Organisations']
+]
 
 exports.TITLE_CHOICES = [
   EMPTY_CHOICE

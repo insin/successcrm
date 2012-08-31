@@ -3,6 +3,12 @@ var async = require('async')
 
 var $r = require('./connection')
 
+// Constants
+var RELATED_FULL = 'full'
+  , RELATED_PARTIAL = 'partial'
+  , TYPE_PERSON = 'person'
+  , TYPE_ORGANISATION = 'organisation'
+
 module.exports = {
   byId: byId
 , storePerson: storePerson
@@ -10,6 +16,8 @@ module.exports = {
 , get: get
 , RELATED_FULL: RELATED_FULL
 , RELATED_PARTIAL: RELATED_PARTIAL
+, TYPE_PERSON: TYPE_PERSON
+, TYPE_ORGANISATION: TYPE_ORGANISATION
 }
 
 // Redis keys
@@ -19,12 +27,6 @@ var CONTACT = 'contact:#'
   , ORGANISATIONS = 'contacts:orgs'
   , ORG_TO_PEOPLE = 'org.to.people:#'
   , NEXT_ID = 'contacts:nextid'
-
-// Constants
-var RELATED_FULL = 'full'
-  , RELATED_PARTIAL = 'partial'
-  , TYPE_PERSON = 'person'
-  , TYPE_ORGANISATION = 'organisation'
 
 /**
  * Returns true for values which are truthy.
@@ -92,8 +94,18 @@ function byId(id, options, cb) {
   })
 }
 
+/**
+ * Determines which key to look under for contact ids.
+ * @param type a contact type.
+ */
+function lookupKey(type) {
+  if (type === TYPE_PERSON) return PEOPLE
+  if (type === TYPE_ORGANISATION) return ORGANISATIONS
+  return CONTACTS
+}
+
 function get(options, cb) {
-  var defaultOptions = {start: 0, count: 30, fetchRelated: false}
+  var defaultOptions = {start: 0, count: 30, fetchRelated: false, type: null}
   if (typeof options == 'function') {
     cb = options
     options = defaultOptions
@@ -102,9 +114,10 @@ function get(options, cb) {
     options = object.extend(defaultOptions, options)
   }
 
-  var start = options.start
+  var key = lookupKey(options.type)
+    , start = options.start
     , stop = options.start + (options.count - 1)
-  $r.lrange(CONTACTS, start, stop, function(err, ids) {
+  $r.lrange(key, start, stop, function(err, ids) {
     if (err) return cb(err)
     async.map(ids
     , function(id, cb) {

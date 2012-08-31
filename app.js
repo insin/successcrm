@@ -185,7 +185,12 @@ app.get('/contacts', function(req, res, next) {
 })
 
 app.get('/contacts/list', function(req, res, next) {
-  res.render('list_contacts')
+  var filterForm = new forms.ContactListFilterForm({data: req.query})
+    , filters = (filterForm.isValid() ? filterForm.cleanedData : {})
+  redis.contacts.get(_.extend({fetchRelated: redis.contacts.RELATED_PARTIAL}, filters), function(err, contacts) {
+    if (err) return next(err)
+    res.render('list_contacts', {contacts: contacts, filterForm: filterForm})
+  })
 })
 
 app.get('/contact/:id', function(req, res, next) {

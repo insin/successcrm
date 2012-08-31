@@ -1,1 +1,17 @@
 extends contacts
+
+block contact_content
+  include mixins/contacts
+  include mixins/forms
+  form.form-inline(action='/contacts/list', method='GET')
+    p
+      | Show 
+      +widget(filterForm, 'type')
+      | 
+      button.btn(type='submit') Filter
+  table.table
+    col(width='1%')
+    col(width='49%')
+    tbody
+      for contact in contacts
+        +contactRow(contact)

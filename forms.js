@@ -163,3 +163,7 @@ exports.TaskFilterForm = forms.Form.extend({
     this.fields.category.setChoices(kwargs.categories)
   }
 })
+
+exports.ContactListFilterForm = forms.Form.extend({
+  type: forms.ChoiceField({required: false, choices: choices.CONTACT_TYPE_CHOICES})
+})
