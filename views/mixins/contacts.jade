@@ -71,10 +71,9 @@ mixin profileAddress(address)
     td: i.icon-home
     td
       if (address.type)
-        | 
         span.label.label-inverse= address.type
-      if (address.address)
         br
+      if (address.address)
         = address.address
       if (address.city)
         br
