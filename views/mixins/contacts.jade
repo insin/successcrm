@@ -74,7 +74,7 @@ mixin profileAddress(address)
         span.label.label-inverse= address.type
         br
       if (address.address)
-        = address.address
+        != $linebreaksbr(address.address)
       if (address.city)
         br
         = address.city

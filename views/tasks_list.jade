@@ -36,7 +36,7 @@ block tasks_content
                   |  for 
                   a(href='/contact/' + task.contact.id)= task.contact
               if (task.detail)
-                .more-detail= task.detail
+                .more-detail!= $linebreaksslash(task.detail)
             td
               .task-date= $date(task.due, 'DD MMMM YYYY')
               if (task.time)

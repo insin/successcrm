@@ -12,7 +12,7 @@ mixin taskTitle(task, context)
 
 mixin taskDetail(task)
   if (task.detail)
-    .more-detail= task.detail
+    .more-detail!= $linebreaksslash(task.detail)
 
 mixin taskTime(task)
   .task-time
@@ -27,7 +27,7 @@ mixin ownTaskRow(task)
     td
       input(type='checkbox', name='task', value=task.id)
     td
-      +taskTitle(task)
+      +taskTitle(task, 'context-next=/')
       +taskDetail(task)
       +taskTime(task)
         if (task.contact)

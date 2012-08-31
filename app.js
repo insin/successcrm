@@ -58,12 +58,7 @@ app.configure(function() {
   app.locals.pretty = true
   app.locals.APP_NAME = settings.appName
   app.locals.APP_VERSION = require('./package.json').version
-  app.locals.$date = function(date, format) {
-    return moment(date).format(format)
-  }
-  app.locals.$timeAgo = function(date) {
-    return moment(date).fromNow()
-  }
+  _.extend(app.locals, require('./helpers'))
   // Middleware
   app.use(express.favicon())
   app.use(express.static(path.join(__dirname, 'static')))
